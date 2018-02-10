@@ -50,72 +50,151 @@ signal Aunsigned: std_logic_vector(31 downto 0);
 signal Bunsigned: std_logic_vector(31 downto 0);
 signal Asigned: std_logic_vector(31 downto 0);
 signal Bsigned: std_logic_vector(31 downto 0);
-signal output_sig: std_logic_vector(31 downto 0);
+signal output_sig: std_logic_vector(32 downto 0);
 signal Asigned_tmp, Bsigned_tmp :std_logic_vector(31 downto 0);
 begin
-Aunsigned<=inputA;
-Bunsigned<=inputB;
+Aunsigned <= inputA;
+Bunsigned <= inputB;
+
+Asigned <= inputA;
+Bsigned <= inputB;
 
 case (opcode) is
 	when "000000" => -- arithmetic operations (opcode = 00)
 		case(funct) is
 			when "0000" =>  --(signed addition)			
+				output_sig <=Asigned + Bsigned;
 			    if (Asigned(31) != Bsigned(31)) then
-					output_sig <=Asigned + Bsigned;
 					overflow <= '0';
-					carryout <= '0';
 				else
-					
-			when "0001" =>
-				initial_Output_unsigned <= Aunsigned + Bunsigned;
+					if(output_sig(31) != Asigned(31)) then
+						overflow <= '1';
+					end if;
+				end if;
+			when "0001" => --(unsigned addition)
+				output_sig <= Aunsigned + Bunsigned;
+				if(output_sig(32) = '1') then
+					overflow = '1';
+				else 
+					overflow = '0';
+				end if;
 			when "0010" => --(subtraction)
-				output_sig <=Asigned - Bsigned;
-			when "0011" =>
-				initial_Output_unsigned <= Aunsigned - Bunsigned;
-			when "0100" =>
-				output_sig <= inputA AND inputB;
-			when "0101" =>
-				output_sig <= inputA OR inputB;
-			when "0110" =>
-				output_sig <= inputA XOR 	inputB;
-			when "0111" =>
-				output_sig <= inputA NOR inputB;
-			when "1010" => 
-				if(Asigned < Bsigned) then
-					output_sig<= "1";
+				Bsigned_tmp <= not(Bsigned) + '1';
+				output_sig <= Asigned + Bsigned_tmp;
+				if(Asigned(31) = Bsigned(31)) then--overflow handling. A and B have different signs
+					overflow <= '0';
 				else
-					output_sig<= "0";
-			    end if;
-			when "1011"=>
+					if(Asigned(31) = '1') then -- A is negative, so B must be positive according to previous if (above the else)
+					Asigned_tmp <= not(Asigned) + 1; -- turns A positive
+						if(Asigned_tmp > B_signed)  --if absolute value of A is > B, and A is negative, output must be negative 
+							if(output_sig(31) != '1') then
+								overflow <= '1';
+							else
+								overflow <= '0';
+							end if;
+					else -- A is positive, B is negative (meaning we did A + B, where both A and B are positive)
+						if(output_sig(32) != '1') then--checking the carry-out bit
+							overflow <= '1';
+						else
+							overflow <= '0';
+						end if;
+					end if;
+				end if;
+				
+			when "0011" => --(unsigned subtraction)
+				output_sig <= Aunsigned - Bunsigned;
+				if (Aunsigned >= Bunsigned) then
+					overflow=0;
+				else
+					overflow<='1';
+				end if;
+				
+			when "0100" => -- (and)
+				output_sig <= inputA AND inputB;
+			when "0101" => -- (or)
+				output_sig <= inputA OR inputB;
+			when "0110" => --(xor)
+				output_sig <= inputA XOR inputB;
+			when "0111" => --(nor)
+				output_sig <= inputA NOR inputB;
+				
+			when "1010" => --(set on less than)
+				if(Asigned(31) = Bsigned(31)) then
+					if(Asigned(31)='0') then
+						if(Asigned<Bsigned) then
+							output_sig(0)<= x'00000001';
+						else
+							output_sig(0)<= x'00000000';
+						end if;
+					else -- both A and B are negative, abs values must be compared
+						Asigned_tmp  = not(Asigned) + 1;
+						Bsigned_tmp  = not(Bsigned) + 1;
+						if(Asigned_tmp > Bsigned_tmp) then -- if A is a smaller negative number,althought abs(A) < abs(B), A is > B.
+							output_sig(0)<= x'00000001';
+						else
+							output_sig(0)<= x'00000000';
+						end if;
+					end if;
+				end if;
+
+			when "1011"=> --(set on less than unsigned)
 			    if(Aunsigned < Bunsigned) then
                     output_sig<= "1";
                 else
                     output_sig<= "0";
                 end if;
-         end case;
-    when "001000"=>
-        output_sig<=(Asigned + Bsigned);
-    when "001001"=>
-       output_sig<=(Aunsigned + Bunsigned);
-    when "001010"=>
-       if(Aunsigned < Bunsigned) then
-          output_sig<= "1";
-       else
-          output_sig<= "0";
-       end if;
-    when "001011"=>
-       if(Aunsigned < Bunsigned) then
-          output_sig<= "1";
-       else
-          output_sig<= "0";
-       end if;
-    when "001100"=>
+		 end case; -- opcodes are no longer x00
+    
+	 when "001000"=> --(add immediate) 
+        output_sig <=Asigned + Bsigned;
+			 if (Asigned(31) != Bsigned(31)) then
+				overflow <= '0';
+			else
+				if(output_sig(31) != Asigned(31)) then
+					overflow <= '1';
+				end if;
+			end if;
+    when "001001"=> --(add immediate unsigned)
+		 output_sig <= Aunsigned + Bunsigned;
+		 if(output_sig(32) = '1') then
+			overflow = '1';
+		else 
+			overflow = '0';
+		end if;
+		
+    when "001010"=> --(set on less than immediate)
+			if(Asigned(31) = Bsigned(31)) then
+				if(Asigned(31)='0') then
+					if(Asigned<Bsigned) then
+						output_sig(0)<= x'00000001';
+					else
+						output_sig(0)<= x'00000000';
+					end if;
+				else -- both A and B are negative, abs values must be compared
+					Asigned_tmp  = not(Asigned) + 1;
+					Bsigned_tmp  = not(Bsigned) + 1;
+					if(Asigned_tmp > Bsigned_tmp) then -- if A is a smaller negative number,althought abs(A) < abs(B), A is > B.
+						output_sig(0)<= x'00000001';
+					else
+						output_sig(0)<= x'00000000';
+					end if;
+				end if;
+			end if;
+			
+    when "001011"=> --(set on less than immediate unsigned)
+		 if(Aunsigned < Bunsigned) then
+			output_sig<= "1";
+		else
+			output_sig<= "0";
+		end if;
+			 
+    when "001100"=> --(and immediate) 
          output_sig <= inputA AND inputB;
-    when "001101"=>
+    when "001101"=> --(or immediate) 
          output_sig <= inputA OR inputB;
-    when "001110"=>
+    when "001110"=> --(xor immediate) 
          output_sig <= inputA XOR inputB;
-    when "001111"=>
+    when "001111"=> --(load upper immediate) 
          output_sig(15 downto 0)<="0000000000000000";
          output_sig(31 downto 16)<=inputA;
 end case;
