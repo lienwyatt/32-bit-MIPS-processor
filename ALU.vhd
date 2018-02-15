@@ -113,13 +113,13 @@ begin
 					end if;
 					
 				when "0100" => -- (and)
-					output_sig <= inputA AND inputB;
+					output_sig <= ('0' & inputA) AND ('0' & inputB);
 				when "0101" => -- (or)
-					output_sig <= inputA OR inputB;
+					output_sig <= ('0' & inputA) OR ('0' & inputB);
 				when "0110" => --(xor)
-					output_sig <= inputA XOR inputB;
+					output_sig <= ('0' & inputA) XOR ('0' & inputB);
 				when "0111" => --(nor)
-					output_sig <= inputA NOR inputB;
+					output_sig <= ('0' & inputA) NOR ('0' & inputB);
 					
 				when "1010" => --(set on less than)
 					if(Asigned(31) = Bsigned(31)) then
