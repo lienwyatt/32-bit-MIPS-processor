@@ -47,12 +47,12 @@ architecture Behavioral of ALU is
 --signal initial_Output_unsigned: unsigned(32 downto 0);
 --signal Asigned, Bsigned: signed(31 downto 0); 
 --signal Aunsigned, Bunsigned: unsigned(31 downto 0);
-signal Aunsigned: std_logic_vector(31 downto 0);
-signal Bunsigned: std_logic_vector(31 downto 0);
-signal Asigned: std_logic_vector(31 downto 0);
-signal Bsigned: std_logic_vector(31 downto 0);
+signal Aunsigned: std_logic_vector(32 downto 0);
+signal Bunsigned: std_logic_vector(32 downto 0);
+signal Asigned: std_logic_vector(32 downto 0);
+signal Bsigned: std_logic_vector(32 downto 0);
 signal output_sig: std_logic_vector(32 downto 0);
-signal Asigned_tmp, Bsigned_tmp :std_logic_vector(31 downto 0);
+signal Asigned_tmp, Bsigned_tmp :std_logic_vector(32 downto 0);
 
 begin
 Aunsigned <= '0' & inputA;
