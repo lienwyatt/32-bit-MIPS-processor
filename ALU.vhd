@@ -194,11 +194,11 @@ begin
 			end if;
 				 
 		 when "001100"=> --(and immediate) 
-				output_sig <= inputA AND inputB;
+				output_sig <= ('0' & inputA) AND ('0' & inputB);
 		 when "001101"=> --(or immediate) 
-				output_sig <= inputA OR inputB;
+				output_sig <= ('0' & inputA) OR ('0' & inputB);
 		 when "001110"=> --(xor immediate) 
-				output_sig <= inputA XOR inputB;
+				output_sig <= ('0' & inputA) XOR ('0' & inputB);
 		 when "001111"=> --(load upper immediate) 
 				output_sig(15 downto 0)<="0000000000000000";
 				output_sig(31 downto 16)<=inputA(15 downto 0);
