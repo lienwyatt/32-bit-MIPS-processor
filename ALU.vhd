@@ -51,15 +51,15 @@ signal Aunsigned: std_logic_vector(31 downto 0);
 signal Bunsigned: std_logic_vector(31 downto 0);
 signal Asigned: std_logic_vector(31 downto 0);
 signal Bsigned: std_logic_vector(31 downto 0);
-signal output_sig: std_logic_vector(31 downto 0);
+signal output_sig: std_logic_vector(32 downto 0);
 signal Asigned_tmp, Bsigned_tmp :std_logic_vector(31 downto 0);
 
 begin
-Aunsigned <= inputA;
-Bunsigned <= inputB;
+Aunsigned <= '0' & inputA;
+Bunsigned <= '0' & inputB;
 
-Asigned <= inputA;
-Bsigned <= inputB;
+Asigned <= '0' & inputA;
+Bsigned <= '0' & inputB;
 
 process(opcode)
 begin
@@ -125,26 +125,26 @@ begin
 					if(Asigned(31) = Bsigned(31)) then
 						if(Asigned(31)='0') then
 							if(Asigned<Bsigned) then
-								output_sig<= "00000000000000000000000000000001";
+								output_sig<= "000000000000000000000000000000001";
 							else
-								output_sig<= "00000000000000000000000000000000";
+								output_sig<= "000000000000000000000000000000000";
 							end if;
 						else -- both A and B are negative, abs values must be compared
 							Asigned_tmp  <= not(Asigned) + '1';
 							Bsigned_tmp  <= not(Bsigned) + '1';
 							if(Asigned_tmp > Bsigned_tmp) then -- if A is a smaller negative number,althought abs(A) < abs(B), A is > B.
-								output_sig<= "00000000000000000000000000000001";
+								output_sig<= "000000000000000000000000000000001";
 							else
-								output_sig<= "00000000000000000000000000000000";
+								output_sig<= "000000000000000000000000000000000";
 							end if;
 						end if;
 					end if;
 
 				when "1011"=> --(set on less than unsigned)
 					 if(Aunsigned < Bunsigned) then
-							  output_sig<= "00000000000000000000000000000001";
+							  output_sig<= "000000000000000000000000000000001";
 						 else
-							  output_sig<= "00000000000000000000000000000000";
+							  output_sig<= "000000000000000000000000000000000";
 						 end if;
 				when others =>
 				
@@ -171,26 +171,26 @@ begin
 				if(Asigned(31) = Bsigned(31)) then
 					if(Asigned(31)='0') then
 						if(Asigned<Bsigned) then
-							output_sig<= "00000000000000000000000000000001";
+							output_sig<= "000000000000000000000000000000001";
 						else
-							output_sig<= "00000000000000000000000000000000";
+							output_sig<= "000000000000000000000000000000000";
 						end if;
 					else -- both A and B are negative, abs values must be compared
 						Asigned_tmp  <= not(Asigned) + '1';
 						Bsigned_tmp  <= not(Bsigned) + '1';
 						if(Asigned_tmp > Bsigned_tmp) then -- if A is a smaller negative number,althought abs(A) < abs(B), A is > B.
-							output_sig<= "00000000000000000000000000000001";
+							output_sig<= "000000000000000000000000000000001";
 						else
-							output_sig<= "00000000000000000000000000000000";
+							output_sig<= "000000000000000000000000000000000";
 						end if;
 					end if;
 				end if;
 				
 		 when "001011"=> --(set on less than immediate unsigned)
 			 if(Aunsigned < Bunsigned) then
-				output_sig<= "00000000000000000000000000000001";
+				output_sig<= "000000000000000000000000000000001";
 			else
-				output_sig<= "00000000000000000000000000000000";
+				output_sig<= "000000000000000000000000000000000";
 			end if;
 				 
 		 when "001100"=> --(and immediate) 
@@ -201,16 +201,16 @@ begin
 				output_sig <= inputA XOR inputB;
 		 when "001111"=> --(load upper immediate) 
 				output_sig(15 downto 0)<="0000000000000000";
-				output_sig(31 downto 16)<=inputA;
+				output_sig(31 downto 16)<=inputA(15 downto 0);
 		when others =>
 	end case;
 end process;
 
 process(output_sig)
 begin
-    if (output_sig = x"00000000") then zero <= '1';
+    if (output_sig = "000000000000000000000000000000000") then zero <= '1';
     end if;
 end process;
 				
-output<=output_sig;
+output<=output_sig(31 downto 0);
 end Behavioral;
