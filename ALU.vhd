@@ -34,8 +34,8 @@ use ieee.std_logic_unsigned.all;
 entity ALU is
 port(
 inputA, inputB: in std_logic_vector(31 downto 0);
-opcode: in std_logic_vector(5 downto 0);
-funct: in std_logic_vector(3 downto 0);
+op: in std_logic_vector(5 downto 0);
+func: in std_logic_vector(3 downto 0);
 output: out std_logic_vector(31 downto 0);
 overflow: out std_logic;
 carryout: out std_logic;
@@ -47,6 +47,8 @@ architecture Behavioral of ALU is
 --signal initial_Output_unsigned: unsigned(32 downto 0);
 --signal Asigned, Bsigned: signed(31 downto 0); 
 --signal Aunsigned, Bunsigned: unsigned(31 downto 0);
+signal opcode: std_logic_vector(5 downto 0);
+signal funct: std_logic_vector(3 downto 0);
 signal Aunsigned: std_logic_vector(32 downto 0);
 signal Bunsigned: std_logic_vector(32 downto 0);
 signal Asigned: std_logic_vector(32 downto 0);
@@ -55,13 +57,14 @@ signal output_sig: std_logic_vector(32 downto 0);
 signal Asigned_tmp, Bsigned_tmp :std_logic_vector(32 downto 0);
 
 begin
+opcode <= op;
+funct <= func;
 Aunsigned <= '0' & inputA;
 Bunsigned <= '0' & inputB;
-
 Asigned <= '0' & inputA;
 Bsigned <= '0' & inputB;
 
-process(opcode, inputA, inputB, funct)
+process(opcode, Aunsigned, Asigned, Bsigned, Bunsigned, funct)
 begin
 	case opcode is
 		when "000000" => -- arithmetic operations (opcode = 00)
@@ -73,7 +76,7 @@ begin
 					else
 						if output_sig(31) /= Asigned(31) then
 							overflow <= '1';
-						else overflow <= '1';
+						else overflow <= '0';
 						end if;
 					end if;
 				when "0001" => --(unsigned addition)
@@ -114,13 +117,13 @@ begin
 					end if;
 					
 				when "0100" => -- (and)
-					output_sig <= ('0' & inputA) AND ('0' & inputB);
+					output_sig <= ('0' & Aunsigned) AND ('0' & Bunsigned);
 				when "0101" => -- (or)
-					output_sig <= ('0' & inputA) OR ('0' & inputB);
+					output_sig <= ('0' & Aunsigned) OR ('0' & Bunsigned);
 				when "0110" => --(xor)
-					output_sig <= ('0' & inputA) XOR ('0' & inputB);
+					output_sig <= ('0' & Aunsigned) XOR ('0' & Bunsigned);
 				when "0111" => --(nor)
-					output_sig <= ('0' & inputA) NOR ('0' & inputB);
+					output_sig <= ('0' & Aunsigned) NOR ('0' & Bunsigned);
 					
 				when "1010" => --(set on less than)
 					if(Asigned(31) = Bsigned(31)) then
@@ -158,6 +161,8 @@ begin
 				else
 					if(output_sig(31) /= Asigned(31)) then
 						overflow <= '1';
+					else 
+						overflow<= '0';
 					end if;
 				end if;
 		 when "001001"=> --(add immediate unsigned)
@@ -195,14 +200,14 @@ begin
 			end if;
 				 
 		 when "001100"=> --(and immediate) 
-				output_sig <= ('0' & inputA) AND ('0' & inputB);
+				output_sig <= ('0' & Aunsigned) AND ('0' & Bunsigned);
 		 when "001101"=> --(or immediate) 
-				output_sig <= ('0' & inputA) OR ('0' & inputB);
+				output_sig <= ('0' & Aunsigned) OR ('0' & Bunsigned);
 		 when "001110"=> --(xor immediate) 
-				output_sig <= ('0' & inputA) XOR ('0' & inputB);
+				output_sig <= ('0' & Aunsigned) XOR ('0' & Bunsigned);
 		 when "001111"=> --(load upper immediate) 
 				output_sig(15 downto 0)<="0000000000000000";
-				output_sig(31 downto 16)<=inputA(15 downto 0);
+				output_sig(31 downto 16)<=Aunsigned(15 downto 0);
 		when others =>
 	end case;
 end process;
@@ -211,8 +216,8 @@ process(output_sig)
 begin
     if (output_sig = "000000000000000000000000000000000") then zero <= '1';
     end if;
-	 	output<=output_sig(31 downto 0);
+
 end process;
-				
+	 	output<=output_sig(31 downto 0);				
 
 end Behavioral;
