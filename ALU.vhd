@@ -61,7 +61,7 @@ Bunsigned <= '0' & inputB;
 Asigned <= '0' & inputA;
 Bsigned <= '0' & inputB;
 
-process(opcode)
+process(opcode, inputA, inputB, funct)
 begin
 	case opcode is
 		when "000000" => -- arithmetic operations (opcode = 00)
@@ -73,6 +73,7 @@ begin
 					else
 						if output_sig(31) /= Asigned(31) then
 							overflow <= '1';
+						else overflow <= '1';
 						end if;
 					end if;
 				when "0001" => --(unsigned addition)
@@ -210,7 +211,8 @@ process(output_sig)
 begin
     if (output_sig = "000000000000000000000000000000000") then zero <= '1';
     end if;
+	 	output<=output_sig(31 downto 0);
 end process;
 				
-output<=output_sig(31 downto 0);
+
 end Behavioral;
