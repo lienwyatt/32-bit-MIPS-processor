@@ -43,10 +43,10 @@ ARCHITECTURE behavior OF alu_test IS
     PORT(
          inputA : IN  std_logic_vector(31 downto 0);
          inputB : IN  std_logic_vector(31 downto 0);
-         opcode : IN  std_logic_vector(5 downto 0);
-         funct : IN  std_logic_vector(3 downto 0);
+         op : IN  std_logic_vector(5 downto 0);
+         func : IN  std_logic_vector(3 downto 0);
          output : OUT  std_logic_vector(31 downto 0);
-         overflow : OUT  std_logic;
+         ovrf : OUT  std_logic;
          carryout : OUT  std_logic;
          zero : OUT  std_logic
         );
@@ -56,12 +56,12 @@ ARCHITECTURE behavior OF alu_test IS
    --Inputs
    signal inputA : std_logic_vector(31 downto 0) := (others => '0');
    signal inputB : std_logic_vector(31 downto 0) := (others => '0');
-   signal opcode : std_logic_vector(5 downto 0) := (others => '0');
-   signal funct : std_logic_vector(3 downto 0) := (others => '0');
+   signal op : std_logic_vector(5 downto 0) := (others => '0');
+   signal func : std_logic_vector(3 downto 0) := (others => '0');
 
  	--Outputs
    signal output : std_logic_vector(31 downto 0);
-   signal overflow : std_logic;
+   signal ovrf : std_logic;
    signal carryout : std_logic;
    signal zero : std_logic;
    -- No clocks detected in port list. Replace <clock> below with 
@@ -73,24 +73,32 @@ BEGIN
    uut: ALU PORT MAP (
           inputA => inputA,
           inputB => inputB,
-          opcode => opcode,
-          funct => funct,
+          op => op,
+          func => func,
           output => output,
-          overflow => overflow,
+          ovrf => ovrf,
           carryout => carryout,
           zero => zero
         );
-
- 
 
    -- Stimulus process
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-	InputA <= x"00000005";
-	InputB <= x"00000003";
-	opcode <= "000000";
-	funct <="0000";
+	InputA <= "11111111111111111111111111111110";
+	InputB <= "00000000000000000000000000000001";
+	op <= "000000";
+	func <= "0001";
+	
+--    InputA <= "11111111111111111111111111111111";
+--    InputB <= "00000000000000000000000000000001";
+--    op <= "000000";
+--    func <= "0000";
+    
+--    InputA <= x"fffffff7";
+--	InputB <= x"00000007";
+--	op <= "000000";
+--	func <= "0010";
 
       -- insert stimulus here 
 

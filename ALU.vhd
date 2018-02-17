@@ -37,7 +37,7 @@ inputA, inputB: in std_logic_vector(31 downto 0);
 op: in std_logic_vector(5 downto 0);
 func: in std_logic_vector(3 downto 0);
 output: out std_logic_vector(31 downto 0);
-overflow: out std_logic;
+ovrf: out std_logic;
 carryout: out std_logic;
 zero: out std_logic
 );
@@ -55,6 +55,7 @@ signal Asigned: std_logic_vector(32 downto 0);
 signal Bsigned: std_logic_vector(32 downto 0);
 signal output_sig: std_logic_vector(32 downto 0);
 signal Asigned_tmp, Bsigned_tmp :std_logic_vector(32 downto 0);
+signal overflow: std_logic;
 
 begin
 opcode <= op;
@@ -63,8 +64,9 @@ Aunsigned <= '0' & inputA;
 Bunsigned <= '0' & inputB;
 Asigned <= '0' & inputA;
 Bsigned <= '0' & inputB;
+ovrf <= overflow;
 
-process(opcode, Aunsigned, Asigned, Bsigned, Bunsigned, funct)
+process(opcode, Aunsigned, Asigned, Bsigned, Bunsigned, funct, output_sig, Bsigned_tmp)
 begin
 	case opcode is
 		when "000000" => -- arithmetic operations (opcode = 00)
@@ -81,18 +83,19 @@ begin
 					end if;
 				when "0001" => --(unsigned addition)
 					output_sig <= std_logic_vector( unsigned(Aunsigned) + unsigned(Bunsigned));
-					if output_sig(32) = '1' then
-						overflow <= '1';
-					else 
-						overflow <= '0';
-					end if;
-				when "0010" => --(subtraction)
-					Bsigned_tmp <= not(Bsigned) + '1';
-					output_sig <= Asigned + Bsigned_tmp;
+					--if output_sig(32) = '1' then
+						overflow <= output_sig(32);
+					--else 
+					-- 	overflow <= '0';
+					--end if;
+				when "0010" => --(signed subtraction)
+				Bsigned_tmp <= '0' & not(Bsigned(31 downto 0)) + '1';
+                output_sig <= Asigned + Bsigned_tmp;
 					if(Asigned(31) = Bsigned(31)) then--overflow handling. A and B have different signs
 						overflow <= '0';
+                         
 					elsif(Asigned(31) = '1') then -- A is negative, so B must be positive according to previous if (above the else)
-						Asigned_tmp <= not(Asigned) + '1'; -- turns A positive
+						Asigned_tmp <= '0' & not(Asigned(31 downto 0)) + '1'; -- turns A positive
 							if(Asigned_tmp > Bsigned) then --if absolute value of A is > B, and A is negative, output must be negative 
 								if(output_sig(31) /= '1') then
 									overflow <= '1';
@@ -117,13 +120,13 @@ begin
 					end if;
 					
 				when "0100" => -- (and)
-					output_sig <= ('0' & Aunsigned) AND ('0' & Bunsigned);
+					output_sig <= (Aunsigned) AND (Bunsigned);
 				when "0101" => -- (or)
-					output_sig <= ('0' & Aunsigned) OR ('0' & Bunsigned);
+					output_sig <= (Aunsigned) OR (Bunsigned);
 				when "0110" => --(xor)
-					output_sig <= ('0' & Aunsigned) XOR ('0' & Bunsigned);
+					output_sig <= (Aunsigned) XOR (Bunsigned);
 				when "0111" => --(nor)
-					output_sig <= ('0' & Aunsigned) NOR ('0' & Bunsigned);
+					output_sig <= (Aunsigned) NOR (Bunsigned);
 					
 				when "1010" => --(set on less than)
 					if(Asigned(31) = Bsigned(31)) then
@@ -200,11 +203,11 @@ begin
 			end if;
 				 
 		 when "001100"=> --(and immediate) 
-				output_sig <= ('0' & Aunsigned) AND ('0' & Bunsigned);
+				output_sig <= (Aunsigned) AND (Bunsigned);
 		 when "001101"=> --(or immediate) 
-				output_sig <= ('0' & Aunsigned) OR ('0' & Bunsigned);
+				output_sig <= (Aunsigned) OR (Bunsigned);
 		 when "001110"=> --(xor immediate) 
-				output_sig <= ('0' & Aunsigned) XOR ('0' & Bunsigned);
+				output_sig <= (Aunsigned) XOR (Bunsigned);
 		 when "001111"=> --(load upper immediate) 
 				output_sig(15 downto 0)<="0000000000000000";
 				output_sig(31 downto 16)<=Aunsigned(15 downto 0);
@@ -215,6 +218,7 @@ end process;
 process(output_sig)
 begin
     if (output_sig = "000000000000000000000000000000000") then zero <= '1';
+    else zero <= '1';
     end if;
 
 end process;
