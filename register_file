@@ -1,0 +1,115 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 02/22/2018 01:30:10 PM
+-- Design Name: 
+-- Module Name: register file - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity register_file is
+    port(
+    readreg1: in std_logic_vector(4 downto 0);
+    readreg2: in std_logic_vector(4 downto 0);
+    writereg: in std_logic_vector(4 downto 0);
+    writedata: in std_logic_vector(31 downto 0);
+    regwrite: in std_logic;
+    A: out in std_logic_vector(31 downto 0);
+    B: out in std_logic_vector(31 downto 0);
+    );
+    
+--  Port ( );
+end register_file;
+
+architecture Behavioral of register_file is
+    signal R0 : std_logic_vector(31 downto 0);
+    signal R1 : std_logic_vector(31 downto 0);
+    signal R2 : std_logic_vector(31 downto 0);
+    signal R3 : std_logic_vector(31 downto 0);
+    signal R4 : std_logic_vector(31 downto 0);
+    signal R5 : std_logic_vector(31 downto 0);
+    signal R6 : std_logic_vector(31 downto 0);
+    signal R7 : std_logic_vector(31 downto 0);
+    signal R8 : std_logic_vector(31 downto 0);
+    signal R9 : std_logic_vector(31 downto 0);
+    signal R10 : std_logic_vector(31 downto 0);
+    signal R11: std_logic_vector(31 downto 0);
+    signal R12 : std_logic_vector(31 downto 0);
+    signal R13 : std_logic_vector(31 downto 0);
+    signal R14 : std_logic_vector(31 downto 0);
+    signal R15 : std_logic_vector(31 downto 0);
+    signal R16 : std_logic_vector(31 downto 0);
+    signal R17 : std_logic_vector(31 downto 0);
+    signal R18 : std_logic_vector(31 downto 0);
+    signal R19 : std_logic_vector(31 downto 0);
+    signal R20 : std_logic_vector(31 downto 0);
+    signal R21 : std_logic_vector(31 downto 0);
+    signal R22 : std_logic_vector(31 downto 0);
+    signal R23 : std_logic_vector(31 downto 0);
+    signal R24 : std_logic_vector(31 downto 0);
+    signal R25 : std_logic_vector(31 downto 0);
+    signal R26 : std_logic_vector(31 downto 0);
+    signal R27 : std_logic_vector(31 downto 0);
+    signal R28 : std_logic_vector(31 downto 0);
+    signal R29 : std_logic_vector(31 downto 0);
+    signal R30 : std_logic_vector(31 downto 0);
+    signal R31 : std_logic_vector(31 downto 0);
+begin
+case readreg1 is 
+    when "00000" A<=R0;
+    when "00001" A<=R1;
+    when "00010" A<=R2;
+    when "00011" A<=R3;
+    when "00100" A<=R4;
+    when "00101" A<=R5;
+    when "00110" A<=R6;
+    when "00111" A<=R7;
+    when "01000" A<=R8;
+    when "01001" A<=R9;
+    when "01010" A<=R10;
+    when "01011" A<=R11;
+    when "01100" A<=R12;
+    when "01101" A<=R13;
+    when "01110" A<=R14;
+    when "01111" A<=R15;
+    when "10000" A<=R16;
+    when "10001" A<=R17;
+    when "10010" A<=R18;
+    when "10011" A<=R19;
+    when "10100" A<=R20;
+    when "10101" A<=R21;
+    when "10110" A<=R22;
+    when "10111" A<=R23;
+    when "11000" A<=R24;
+    when "11001" A<=R25;
+    when "11010" A<=R26;
+    when "11011" A<=R27;
+    when "11100" A<=R28;
+    when "11101" A<=R29;
+    when "11110" A<=R30;
+    when "11111" A<=R31;
+end Behavioral;
