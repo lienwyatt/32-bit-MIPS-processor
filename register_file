@@ -187,6 +187,7 @@ case writereg is
     when "11101"=> R29<=writedata;
     when "11110"=> R30<=writedata;
     when "11111"=> R31<=writedata;
+    when others => 
 end case;
 end if;
 end process;
