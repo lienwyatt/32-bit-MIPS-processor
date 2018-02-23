@@ -190,4 +190,4 @@ case writereg is
 end case;
 end if;
 end process;
-end Behavioral
+end Behavioral;
