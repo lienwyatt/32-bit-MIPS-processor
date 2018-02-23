@@ -31,21 +31,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity register_file is
+entity registerfile is
     port(
     readreg1: in std_logic_vector(4 downto 0);
     readreg2: in std_logic_vector(4 downto 0);
     writereg: in std_logic_vector(4 downto 0);
     writedata: in std_logic_vector(31 downto 0);
     regwrite: in std_logic;
-    A: out in std_logic_vector(31 downto 0);
-    B: out in std_logic_vector(31 downto 0);
+    A: out std_logic_vector(31 downto 0);
+    B: out std_logic_vector(31 downto 0)
     );
     
 --  Port ( );
-end register_file;
+end registerfile;
 
-architecture Behavioral of register_file is
+architecture Behavioral of registerfile is
     signal R0 : std_logic_vector(31 downto 0);
     signal R1 : std_logic_vector(31 downto 0);
     signal R2 : std_logic_vector(31 downto 0);
@@ -82,6 +82,7 @@ begin
 R0<="00000000000000000000000000000000";
 R1<="00000000000000000000000000000001";
 process(readreg1, readreg2)
+begin
 case readreg1 is 
     when "00000"=> A<=R0;
     when "00001"=> A<=R1;
@@ -153,8 +154,8 @@ case readreg2 is
     end case;
 end process;
 process(writereg, regwrite, writedata)
-if (regwrite="1")
 begin 
+if (regwrite='1') then
 case writereg is 
     when "00010"=> R2<=writedata;
     when "00011"=> R3<=writedata;
@@ -166,7 +167,7 @@ case writereg is
     when "01001"=> R9<=writedata;
     when "01010"=> R10<=writedata;
     when "01011"=> R11<=writedata;
-    when "01100" =>R12<=writedata;
+    when "01100"=> R12<=writedata;
     when "01101"=> R13<=writedata;
     when "01110"=> R14<=writedata;
     when "01111"=> R15<=writedata;
