@@ -34,7 +34,7 @@ entity Datapath is
 
     Port (
     AB1: out std_logic_vector(31 downto 0);
-    IB1: out std_logic_vector(31 downto 0);
+    IB1: in std_logic_vector(31 downto 0);
     AB2: out std_logic_vector(31 downto 0);
     DB2: out std_logic_vector(31 downto 0);
     DB3: in std_logic_vector(31 downto 0);
@@ -57,21 +57,84 @@ architecture Behavioral of Datapath is
     signal ALU5: std_logic_vector(31 downto 0);
     signal MDR5: std_logic_vector(31 downto 0);
     signal PC: std_logic_vector(31 downto 0);
+    
+    
+    
+    signal Rs: std_logic_vector(4 downto 0);--gpr signals
+    signal Rd: std_logic_vector(4 downto 0);
+    signal Rt: std_logic_vector(4 downto 0);
+    signal A: std_logic_vector(4 downto 0);
+    signal B: std_logic_vector(4 downto 0);
+    component registerfile
+     port(
+        readreg1: in std_logic_vector(4 downto 0);
+        readreg2: in std_logic_vector(4 downto 0);
+        writereg: in std_logic_vector(4 downto 0);
+        writedata: in std_logic_vector(31 downto 0);
+        regwrite: in std_logic;
+        A: out std_logic_vector(31 downto 0);
+        B: out std_logic_vector(31 downto 0)
+        );
+    end component;
+    
+    
+    signal mux1: std_logic_vector(31 downto 0);--muxes
+    signal mux2: std_logic_vector(31 downto 0);
+    signal mux3: std_logic_vector(31 downto 0);
+    signal mux4: std_logic_vector(31 downto 0);
+    signal Rsel: std_logic_vector(5 downto 0);
+    
+    
+    signal PCsel: std_logic;--control unit
+    signal regwrite: std_logic;
 
 begin
+
+gpr: registerfile port map(
+    readreg1=>Rs,
+    readreg2=>Rt,
+    writereg=>Rsel,
+    A=>A,
+    B=>B,
+    writedata=>mux4,
+    regwrite=>regwrite
+    );
+
 DB2<=B4;
 AB2<=ALU4;
+AB1<=PC;
+
+process(PCsel)
+begin
+    if(PCsel='1') then
+        mux1<=PC+"00000000000000000000000000000100";
+    else 
+        mux1<=TA4;
+    end if;
+end process;
+
 process(clock)
 begin
 if(clock' event and clock='1') then
-   AB1<=PC;
+   A3<=A;
+   B3<=B;
+   NPC2<=mux1;
+   PC<=mux1;
    MDR5<=DB3;
    NPC2<=NPC3; 
    ALU5<=ALU4;
+   IR2<=IB1;
    IR3<=IR2;
    IR4<=IR3;
    IR5<=IR4;
+   TA4<=IMM3+"00000000000000000000000000000100";--??????????
+   
+   IMM3(15 downto 0)<=IR2(15 downto 0);--sign extend
+   if (IR2(15)='1') then
+       IMM3(31 downto 16)<="1111111111111111";
+   else
+       IMM3(31 downto 16)<="0000000000000000";
+   end if;
+   
 end if;
 end process;
-
-end Behavioral;
