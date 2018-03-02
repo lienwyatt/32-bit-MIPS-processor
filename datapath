@@ -138,3 +138,5 @@ if(clock' event and clock='1') then
    
 end if;
 end process;
+
+end Behavioral;
