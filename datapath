@@ -57,14 +57,16 @@ architecture Behavioral of Datapath is
     signal ALU5: std_logic_vector(31 downto 0);
     signal MDR5: std_logic_vector(31 downto 0);
     signal PC: std_logic_vector(31 downto 0);
+    signal zero4: std_logic;
     
     
     
     signal Rs: std_logic_vector(4 downto 0);--gpr signals
     signal Rd: std_logic_vector(4 downto 0);
     signal Rt: std_logic_vector(4 downto 0);
-    signal A: std_logic_vector(4 downto 0);
-    signal B: std_logic_vector(4 downto 0);
+    signal A: std_logic_vector(31 downto 0);
+    signal B: std_logic_vector(31 downto 0);
+    signal regwrite: std_logic; 
     component registerfile
      port(
         readreg1: in std_logic_vector(4 downto 0);
@@ -76,17 +78,37 @@ architecture Behavioral of Datapath is
         B: out std_logic_vector(31 downto 0)
         );
     end component;
-    
+     
+     
+     signal aluoutput: std_logic_vector(31 downto 0);--alu signals
+     signal aluoverflow: std_logic;
+     signal aluzero: std_logic;
+     signal alucarry: std_logic;   
+     component ALU
+     port(
+     inputA: in std_logic_vector(31 downto 0);
+     inputB: in std_logic_vector(31 downto 0);
+     op: in std_logic_vector(5 downto 0);
+     func: in std_logic_vector(3 downto 0);
+     output: out std_logic_vector(31 downto 0);
+     overflow: out std_logic;
+     carryout: out std_logic;
+     zero: in std_logic
+     );
+    end component;
     
     signal mux1: std_logic_vector(31 downto 0);--muxes
     signal mux2: std_logic_vector(31 downto 0);
     signal mux3: std_logic_vector(31 downto 0);
     signal mux4: std_logic_vector(31 downto 0);
-    signal Rsel: std_logic_vector(5 downto 0);
+    signal Rsel: std_logic_vector(4 downto 0);
     
     
-    signal PCsel: std_logic;--control unit
-    signal regwrite: std_logic;
+    signal PCsel: std_logic;--control unit signals
+    signal Bsel: std_logic;
+    signal Rselect: std_logic;
+    signal Loadsel: std_logic;
+
 
 begin
 
@@ -99,7 +121,18 @@ gpr: registerfile port map(
     writedata=>mux4,
     regwrite=>regwrite
     );
+    
 
+Arithmetic_logic_unit: ALU port map(
+    inputA=>A3,
+    inputB=>mux3,
+    op=>IR3(31 downto 26),
+    func=>IR3(3 downto 0),
+    output=>aluoutput,
+    overflow=> aluoverflow,
+    carryout=> alucarry,
+    zero=>aluzero
+    );
 DB2<=B4;
 AB2<=ALU4;
 AB1<=PC;
@@ -116,6 +149,7 @@ end process;
 process(clock)
 begin
 if(clock' event and clock='1') then
+   zero4<=aluzero;
    A3<=A;
    B3<=B;
    NPC2<=mux1;
@@ -127,16 +161,41 @@ if(clock' event and clock='1') then
    IR3<=IR2;
    IR4<=IR3;
    IR5<=IR4;
-   TA4<=IMM3+"00000000000000000000000000000100";--??????????
-   
+   TA4(31 downto 2)<=IMM3;--pc = imm x 4
+   TA4(1 downto 0)<= "00";
    IMM3(15 downto 0)<=IR2(15 downto 0);--sign extend
    if (IR2(15)='1') then
        IMM3(31 downto 16)<="1111111111111111";
    else
        IMM3(31 downto 16)<="0000000000000000";
    end if;
-   
 end if;
 end process;
+
+
+process(Loadsel) 
+begin
+case Loadsel is
+    when '1' => mux4<=ALU5;
+    when others=> mux4<=MDR5;
+end case;
+end process;
+
+process(IR5) 
+begin
+case Rselect is
+    when '1' => Rsel<=IR5(20 downto 16);
+    when others=> Rsel<=IR5(25 downto 21);
+end case;
+end process;
+
+process(Bsel) 
+begin
+case Bsel is
+    when '1' => mux3<=B3;
+    when others=> mux3<=IMM3;
+end case;
+end process;
+
 
 end Behavioral;
