@@ -34,9 +34,7 @@ use ieee.std_logic_unsigned.all;
 entity control is
 port(
 clk: in std_logic;
-IR1, IR2, IR3, IR4, IR5 : in std_logic_vector(31 downto 0);
-ALUopcode: out std_logic_vector(5 downto 0);
-ALUfunct: out std_logic_vector(3 downto 0);
+IR2, IR3, IR4, IR5 : in std_logic_vector(31 downto 0);
 PCsel, Bsel, LoadSel, Rselect, RegWrite: out std_logic
 );
 end control;
@@ -54,8 +52,6 @@ architecture Behavioral of control is
 	funct4 <= IR4(3 downto 0);
 	funct5 <= IR5(3 downto 0);
 
-	ALUopcode <= opcode3;
-	ALUfunct <= funct3;
 
 	process(clk)
 	begin
