@@ -60,6 +60,18 @@ architecture Behavioral of control is
 	process(clk)
 	begin
 		-----IF
+		case opcode4 is
+		when "000000" =>
+		if (funct4 = "1000")  then
+			PCsel <='0';
+		elsif (funct4 = "1001") then
+			PCsel<='0';
+		end if;
+		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
+			PCsel <='0';
+		when others=>
+		PCsel <='1';
+		end case;
 		-----ID
 		case opcode5 is
 			when "000000" | "001000" | "001001" | "001010" | "001011" | "001100" | "001101" | "001110" | "001111" =>
