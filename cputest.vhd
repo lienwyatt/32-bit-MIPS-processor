@@ -1,3 +1,56 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 03/27/2018 04:09:03 PM
+-- Design Name: 
+-- Module Name: Datapth_testbench - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 03/02/2018 02:36:25 PM
+-- Design Name: 
+-- Module Name: Datapath - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
 --------------------------------------------------------------------------------
 -- Company: 
 -- Engineer:
@@ -35,7 +88,7 @@ USE ieee.std_logic_1164.ALL;
 ENTITY cputest IS
 END cputest;
  
-ARCHITECTURE behavior OF cputest IS 
+ARCHITECTURE behavioral OF cputest IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
@@ -100,7 +153,10 @@ BEGIN
       -- insert stimulus here 
 		IB1<="00000000001000010001100000100001";
 	   wait for clock_period*10; 
+	   IB1<="10101100011000110000000000000000";
+	   wait for clock_period*10; 
       wait;
    end process;
 
 END;
+
