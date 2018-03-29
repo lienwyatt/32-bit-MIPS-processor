@@ -152,10 +152,13 @@ BEGIN
 
       -- insert stimulus here 
 		IB1<="00000000001000010001100000100001";
-	   wait for clock_period*10; 
-	   IB1<="10101100011000110000000000000000";
-	   wait for clock_period*10; 
-      wait;
+	   wait for clock_period;
+	   IB1 <="11111100001000010001100000100000"; 
+      wait for clock_period*10;
+      IB1<="00000000001000110001100000100001";
+      wait for clock_period;
+      IB1 <="11111100000000000000000000100000"; 
+      wait for clock_period*10;
    end process;
 
 END;

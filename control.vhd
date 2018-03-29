@@ -65,22 +65,26 @@ architecture Behavioral of control is
 		end if;
 		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
 			PCsel <='0';
+		when "111111"=>
+		--do nothing(nop) 	
 		when others=>
 		PCsel <='1';
 		end case;
 		-----ID
-		case opcode5 is
+		case opcode2 is
 			when "000000" | "001000" | "001001" | "001010" | "001011" | "001100" | "001101" | "001110" | "001111" =>
-			RegWrite <= '1';
+			RegWrite <= '0';
+			when "111111"=>
+            --do nothing(nop)     
 			when others => 
-			RegWrite<= '0';
+			RegWrite<= '1';
 		end case;
 		----EX
 		case opcode3 is
 			when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111" =>
-			Bsel <= '1';
+			Bsel <= '0';
 			when "000000" => 
-			Bsel<= '0';
+			Bsel<= '1';
 			when others =>
 		end case;
 		----MEM
@@ -89,9 +93,11 @@ architecture Behavioral of control is
 			when "000000" =>
 			LoadSel<= '1';
 			Rselect <= '1';
+			RegWrite<= '1';
 			when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111" =>
 			LoadSel<= '1';
 			Rselect <='0';
+			RegWrite <='1';
 			when others =>
 		end case;
 	end process;
