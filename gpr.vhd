@@ -83,7 +83,7 @@ R0<="00000000000000000000000000000000";
 R1<="00000000000000000000000000000001";
 process(readreg1, readreg2, regwrite)
 begin
-if (regwrite='0') then
+
 case readreg1 is 
     when "00000"=> A<=R0;
     when "00001"=> A<=R1;
@@ -155,7 +155,6 @@ case readreg2 is
         when "11111"=> B<=R31;
         when others =>
     end case;
-    end if;
 end process;
 process(writereg, regwrite, writedata)
 begin 
