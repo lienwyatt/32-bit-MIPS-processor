@@ -42,6 +42,8 @@ end control;
 architecture Behavioral of control is
 	signal opcode2, opcode3, opcode4, opcode5: std_logic_vector(5 downto 0);
 	signal funct2, funct3, funct4, funct5: std_logic_vector(3 downto 0);
+	signal opResult1, opResult2, functResult, opAndfunct, opOrFunct: std_logic;
+
 	begin
 	opcode2 <= IR2(31 downto 26);
 	opcode3 <= IR3(31 downto 26);
@@ -52,54 +54,85 @@ architecture Behavioral of control is
 	funct4 <= IR4(3 downto 0);
 	funct5 <= IR5(3 downto 0);
 
-
-	process(clk)
-	begin
+--    with opcode4 select opResult1<=
+--    '1' when "000000",
+--    '0' when others;
+    
+--    with funct4 select functResult<=
+--    '1' when "1000"| "1001",
+--    '0' when others;
+    
+--    with opcode4 select opResult2<=
+--    '1' when  "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"|"111111",
+--    '0' when others;
+    
+--    opAndfunct <= opResult1 AND functResult;
+    
+--    opOrFunct<= opAndFunct OR functResult;
+    
+--    with opOrFunct select PCsel<=
+--    '0' when '1',
+--    '1' when '0';
+    
+    
+    
+    
+--	process(clk, IR2, IR3, IR4, IR5)
+--	begin
 		-----IF
-		case opcode4 is
-		when "000000" =>
-		if (funct4 = "1000")  then
-			PCsel <='0';
-		elsif (funct4 = "1001") then
-			PCsel<='0';
-		end if;
-		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
-			PCsel <='0';
-		when "111111"=>
-		--do nothing(nop) 	
-		when others=>
-		PCsel <='1';
-		end case;
+		
+--		case opcode4 is
+--		when "000000" =>
+--		if (funct4 = "1000")  then
+--			PCsel <='0';
+--		elsif (funct4 = "1001") then
+--			PCsel<='0';
+--		end if;
+--		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
+--			PCsel <='0';
+--		when "111111"=>
+--		--do nothing(nop) 	
+--		when others=>
+--		PCsel <='1';
+--		end case;
+		
 		-----ID
-		case opcode2 is
-			when "000000" | "001000" | "001001" | "001010" | "001011" | "001100" | "001101" | "001110" | "001111" =>
-			RegWrite <= '0';
-			when "111111"=>
-            --do nothing(nop)     
-			when others => 
-			RegWrite<= '1';
-		end case;
 		----EX
-		case opcode3 is
-			when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111" =>
-			Bsel <= '0';
-			when "000000" => 
-			Bsel<= '1';
-			when others =>
-		end case;
+--		case opcode3 is
+--			when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111" =>
+--			Bsel <= '0';
+--			when "000000" => 
+--			Bsel<= '1';
+--			when others =>
+--		end case;
 		----MEM
 		----WB
-		case opcode5 is
-			when "000000" =>
-			LoadSel<= '1';
-			Rselect <= '1';
-			RegWrite<= '1';
-			when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111" =>
-			LoadSel<= '1';
-			Rselect <='0';
-			RegWrite <='1';
-			when others =>
-		end case;
-	end process;
+--		case opcode5 is
+--			when "000000" =>
+--			LoadSel<= '1';
+--			Rselect <= '1';
+--			when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111" =>
+--			LoadSel<= '1';
+--			Rselect <='0';
+--			when others =>
+--		end case;
+--	end process;
+	
+	with opcode3 select Bsel<=
+	'0' when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111",
+	'1' when others; -- need to add all of the other opcodes
+	
+	with opcode5 select LoadSel <=
+	'1' when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111"| "000000",
+	'0' when others; -- Need to add other opcodes
+	
+	with opcode5 select Rselect <= 
+	'1' when "000000",
+	'0' when others; --add in other opcodes
+	
+	with opcode5 select RegWrite <=
+	   '1' when "000000"|"001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111",
+	   '0' when others;
+	   
 end Behavioral;
 

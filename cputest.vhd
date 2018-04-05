@@ -148,17 +148,17 @@ BEGIN
       -- hold reset state for 100 ns.
       wait for 100 ns;	
 
-      wait for clock_period*10;
+      wait for clock_period*9.5;
 
       -- insert stimulus here 
-		IB1<="00000000001000010001100000100001";
+     IB1 <="11111100001000000001000000000000"; 
+     wait for clock_period;
+		IB1<="00000000001000010001100000000001";
 	   wait for clock_period;
-	   IB1 <="11111100001000010001100000100000"; 
-      wait for clock_period*10;
-      IB1<="00000000001000110001100000100001";
-      wait for clock_period;
-      IB1 <="11111100000000000000000000100000"; 
-      wait for clock_period*10;
+	  IB1 <="00100000001001100010000000000100"; 
+     wait for clock_period;
+      IB1 <="11111100001000000010100000000000"; 
+      wait;
    end process;
 
 END;

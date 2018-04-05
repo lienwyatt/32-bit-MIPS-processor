@@ -166,6 +166,8 @@ Control_unit: control port map(
 DB2<=B4;
 AB2<=ALU4;
 AB1<=PC;
+Rs<=IR2(25 downto 21);
+Rt<=IR2(20 downto 16);
 
 process(PCsel)
 begin
@@ -182,17 +184,17 @@ if(clock' event and clock='1') then
    zero4<=aluzero;
    A3<=A;
    B3<=B;
+   B4<=B3;
    NPC2<=mux1;
    MDR5<=DB3;
-   NPC2<=NPC3;
+   NPC3<=NPC2;
    ALU4<=aluoutput; 
    ALU5<=ALU4;
    IR2<=IB1;
    IR3<=IR2;
    IR4<=IR3;
    IR5<=IR4;
-   Rs<=IR2(25 downto 21);
-   Rt<=IR2(20 downto 16);
+
    TA4(31 downto 2)<=IMM3(29 downto 0);--pc = imm x 4
    TA4(1 downto 0)<= "00";
    IMM3(15 downto 0)<=IR2(15 downto 0);--sign extend
