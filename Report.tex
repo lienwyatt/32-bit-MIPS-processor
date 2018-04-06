@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{minted}
+
+\author{Jesse Coma, Fahim Ghani, Sundeep Kaler, Wyatt Lien}
+
+\title{32-bit FPGA Processor}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+In this paper, we present a program with which an FPGA (Field Programmable Gate Array) is programmed to work as a 32-bit-processor based on the R2000 microprocessor chip set. This processor is a CPU (Central Processing Unit) that interprets the MIPS (Microprocessor without Interlocked Pipeline Stages) I instruction set. The processor will be fully pipelined and support data forwarding. The program is written in VHDL (Very high speed IC Hardware Description Language). The processor will then be implemented on a Nexus FPGA and tested with arithmetic applications such as identification of prime numbers and computing factorials. The purpose of this program is to implement a CPU design using VHDL, allowing us to model and simulate behavior before translating the design directly to hardware.
+
+\end{abstract}
+\section{Introduction}
+
+
+\section{Specifications}
+
+\subsection{Pipeline}
+
+\subsection{Instruction Set}
+
+\section{Implementation}
+
+\lstdefinelanguage{VHDL}{
+   morekeywords={
+     library,use,all,entity,is,port,in,out,end,architecture,of,
+     begin,and
+   },
+   morecomment=[l]--
+}
+	
+\begin{minted}{vhdl}
+--example code
+entity Datapath is
+
+    Port (
+    AB1: out std_logic_vector(31 downto 0);
+    IB1: in std_logic_vector(31 downto 0);
+    AB2: out std_logic_vector(31 downto 0);
+    DB2: out std_logic_vector(31 downto 0);
+    DB3: in std_logic_vector(31 downto 0);
+	 reset: std_logic; -- used for resetting pc to first address
+    clock: in std_logic);
+end Datapath;
+\end{minted}
+
+
+
+
+
+
+\section{Application Set}
+
+\end{document}
