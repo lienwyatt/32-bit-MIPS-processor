@@ -41,61 +41,41 @@ end control;
 
 architecture Behavioral of control is
 	signal opcode2, opcode3, opcode4, opcode5: std_logic_vector(5 downto 0);
-	signal funct2, funct3, funct4, funct5: std_logic_vector(3 downto 0);
-	signal opResult1, opResult2, functResult, opAndfunct, opOrFunct: std_logic;
+	signal funct2, funct3, funct4, funct5: std_logic_vector(5 downto 0);
+	signal opResult1, opResult2, functResult, opAndfunct, opOrFunct, storet, stored: std_logic;
 
 	begin
 	opcode2 <= IR2(31 downto 26);
 	opcode3 <= IR3(31 downto 26);
 	opcode4 <= IR4(31 downto 26);
 	opcode5 <= IR5(31 downto 26);
-	funct2 <= IR2(3 downto 0);
-	funct3 <= IR3(3 downto 0);
-	funct4 <= IR4(3 downto 0);
-	funct5 <= IR5(3 downto 0);
-
---    with opcode4 select opResult1<=
---    '1' when "000000",
---    '0' when others;
-    
---    with funct4 select functResult<=
---    '1' when "1000"| "1001",
---    '0' when others;
-    
---    with opcode4 select opResult2<=
---    '1' when  "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"|"111111",
---    '0' when others;
-    
---    opAndfunct <= opResult1 AND functResult;
-    
---    opOrFunct<= opAndFunct OR functResult;
-    
---    with opOrFunct select PCsel<=
---    '0' when '1',
---    '1' when '0';
+	funct2 <= IR2(5 downto 0);
+	funct3 <= IR3(5 downto 0);
+	funct4 <= IR4(5 downto 0);
+	funct5 <= IR5(5 downto 0);
     
     
     
     
---	process(clk, IR2, IR3, IR4, IR5)
---	begin
-		-----IF
+	process(clk, IR4)
+	begin
+		---IF
 		
---		case opcode4 is
---		when "000000" =>
---		if (funct4 = "1000")  then
---			PCsel <='0';
---		elsif (funct4 = "1001") then
---			PCsel<='0';
---		end if;
---		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
---			PCsel <='0';
---		when "111111"=>
---		--do nothing(nop) 	
---		when others=>
---		PCsel <='1';
---		end case;
-		
+		case opcode4 is
+		when "000000" =>
+		if (funct4 = "101000")  then
+			PCsel <='0';
+		elsif (funct4 = "101001") then
+			PCsel<='0';
+		end if;
+		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
+			PCsel <='0';
+		when "111111"=>
+		--do nothing(nop) 	
+		when others=>
+		PCsel <='1';
+		end case;
+	end process;
 		-----ID
 		----EX
 --		case opcode3 is
@@ -117,6 +97,8 @@ architecture Behavioral of control is
 --			when others =>
 --		end case;
 --	end process;
+
+	
 	
 	with opcode3 select Bsel<=
 	'0' when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111",
@@ -135,4 +117,3 @@ architecture Behavioral of control is
 	   '0' when others;
 	   
 end Behavioral;
-
