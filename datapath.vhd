@@ -90,7 +90,7 @@ architecture Behavioral of Datapath is
      inputA: in std_logic_vector(31 downto 0);
      inputB: in std_logic_vector(31 downto 0);
      op: in std_logic_vector(5 downto 0);
-     func: in std_logic_vector(3 downto 0);
+     func: in std_logic_vector(5 downto 0);
      output: out std_logic_vector(31 downto 0);
      overflow: out std_logic;
      carryout: out std_logic;
@@ -103,14 +103,20 @@ architecture Behavioral of Datapath is
     signal mux2: std_logic_vector(31 downto 0);
     signal mux3: std_logic_vector(31 downto 0);
     signal mux4: std_logic_vector(31 downto 0);
-    signal Rsel: std_logic_vector(4 downto 0);
+    signal mux5: std_logic_vector(31 downto 0);
+    
     
     
     signal PCsel: std_logic;--control unit signals
-    signal Bsel: std_logic;
+    signal Bsel: std_logic_vector(1 downto 0);
     signal Rselect: std_logic;
     signal Loadsel: std_logic;
+    signal Rsel: std_logic_vector(4 downto 0);
+    signal Asel: std_logic;
 	 --signal RegWriter: std_logic;--WTF
+	 
+	 
+	 
 	 component control  
 	 port(
 	 clk : in std_logic;
@@ -119,7 +125,8 @@ architecture Behavioral of Datapath is
 	 IR4 : in std_logic_vector(31 downto 0);
 	 IR5 : in std_logic_vector(31 downto 0);
 	 PCsel : out std_logic;
-	 Bsel : out std_logic;
+	 Bsel : out std_logic_vector(1 downto 0);
+	 Asel : out std_logic;
 	 LoadSel : out std_logic;
 	 Rselect : out std_logic;
 	 RegWrite: out std_logic
@@ -140,10 +147,10 @@ gpr: registerfile port map(
     
 
 Arithmetic_logic_unit: ALU port map(
-    inputA=>A3,
+    inputA=>mux5,
     inputB=>mux3,
     op=>IR3(31 downto 26),
-    func=>IR3(3 downto 0),
+    func=>IR3(5 downto 0),
     output=>aluoutput,
     overflow=> aluoverflow,
     carryout=> alucarry,
@@ -157,6 +164,7 @@ Control_unit: control port map(
 	IR4=>IR4,
 	IR5=>IR5,
 	PCSel=>PCSel,
+	Asel=>Asel,
 	Bsel=>Bsel,
 	Rselect=>Rselect,
 	LoadSel=>LoadSel,
@@ -169,13 +177,15 @@ AB1<=PC;
 Rs<=IR2(25 downto 21);
 Rt<=IR2(20 downto 16);
 
-process(PCsel)
+process(clock)
 begin
+if(clock' event and clock='1') then
     if(PCsel='1') then
         mux1<=PC+"00000000000000000000000000000100";
     else 
         mux1<=TA4;
     end if;
+end if;
 end process;
 
 process(clock)
@@ -227,14 +237,16 @@ with Rselect select Rsel <=
     IR5(15 downto 11) when '1',
     IR5(20 downto 16) when others;
 
+with Asel select mux5<=
+    ALU4 when '1',
+    A3 when others;
+    
 
 with Bsel select mux3 <=
-    B3 when '1',
+    B3 when "01",
+    ALU4 when "11",
     IMM3 when others;
 
 
 
 end Behavioral;
-
-
-
