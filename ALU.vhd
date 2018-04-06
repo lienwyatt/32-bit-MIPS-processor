@@ -35,7 +35,7 @@ entity ALU is
 port(
 inputA, inputB: in std_logic_vector(31 downto 0);
 op: in std_logic_vector(5 downto 0);
-func: in std_logic_vector(3 downto 0);
+func: in std_logic_vector(5 downto 0);
 output: out std_logic_vector(31 downto 0);
 overflow: out std_logic;
 carryout: out std_logic;
@@ -48,7 +48,7 @@ architecture Behavioral of ALU is
 --signal Asigned, Bsigned: signed(31 downto 0); 
 --signal Aunsigned, Bunsigned: unsigned(31 downto 0);
 signal opcode: std_logic_vector(5 downto 0);
-signal funct: std_logic_vector(3 downto 0);
+signal funct: std_logic_vector(5 downto 0);
 signal Aunsigned: std_logic_vector(32 downto 0);
 signal Bunsigned: std_logic_vector(32 downto 0);
 signal Asigned: std_logic_vector(32 downto 0);
