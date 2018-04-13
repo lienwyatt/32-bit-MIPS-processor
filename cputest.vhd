@@ -1,56 +1,3 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 03/27/2018 04:09:03 PM
--- Design Name: 
--- Module Name: Datapth_testbench - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 03/02/2018 02:36:25 PM
--- Design Name: 
--- Module Name: Datapath - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 --------------------------------------------------------------------------------
 -- Company: 
 -- Engineer:
@@ -99,14 +46,30 @@ ARCHITECTURE behavioral OF cputest IS
          AB2 : OUT  std_logic_vector(31 downto 0);
          DB2 : OUT  std_logic_vector(31 downto 0);
          DB3 : IN  std_logic_vector(31 downto 0);
+			memWrite: OUT std_logic;
          reset : IN  std_logic;
          clock : IN  std_logic
         );
     END COMPONENT;
+	 
+	component memory_unit
+	port(
+	ab1: in std_logic_vector(31 downto 0); -- pc (address of instruction)
+	ib1: out std_logic_vector(31 downto 0); -- instruction fetched from memory
+
+	ab2: in std_logic_vector(31 downto 0); --  address of data (to be fetched or written to)
+	db2: in std_logic_vector(31 downto 0); -- carries the data to be written to memory
+	write_en : in std_logic; -- write enable
+	db3: out std_logic_vector(31 downto 0); -- data out
+
+	clear: in std_logic; -- clear bit (for data memory)
+	clock : in std_logic -- clock signal
+	);
+	end component;
     
 
    --Inputs
-   signal IB1 : std_logic_vector(31 downto 0) := (others => '0');
+   signal IB1sig : std_logic_vector(31 downto 0) := (others => '0');
    signal DB3 : std_logic_vector(31 downto 0) := (others => '0');
    signal reset : std_logic := '0';
    signal clock : std_logic := '0';
@@ -115,6 +78,7 @@ ARCHITECTURE behavioral OF cputest IS
    signal AB1 : std_logic_vector(31 downto 0);
    signal AB2 : std_logic_vector(31 downto 0);
    signal DB2 : std_logic_vector(31 downto 0);
+	signal MemWrite: std_logic;
 
    -- Clock period definitions
    constant clock_period : time := 10 ns;
@@ -124,13 +88,25 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
    uut: Datapath PORT MAP (
           AB1 => AB1,
-          IB1 => IB1,
+          IB1 => IB1sig,
           AB2 => AB2,
           DB2 => DB2,
           DB3 => DB3,
+			 memWrite => MemWrite,
           reset => reset,
           clock => clock
         );
+		  
+	memory: memory_unit PORT MAP(
+	ab1 => AB1,
+	ib1 => IB1sig,
+	ab2 => AB2,
+	db2 => DB2,
+	db3 => DB3,
+	write_en => MemWrite,
+	clear =>reset,
+	clock => clock
+	);
 
    -- Clock process definitions
    clock_process :process
@@ -145,20 +121,21 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
-      -- hold reset state for 100 ns.
-      wait for 100 ns;	
-
-      wait for clock_period*9.5;
+		reset<='1';
+		wait for clock_period;
+		reset<='0';
+      wait for clock_period*10.5;
 
       -- insert stimulus here 
-     IB1 <="11111100001000000001000000000000"; 
-     wait for clock_period;
-		IB1<="00000000001000010001100000000001";
-	   wait for clock_period;
-	  IB1 <="00100000001001100010000000000100"; 
-     wait for clock_period;
-      IB1 <="11111100001000000010100000000000"; 
-      wait;
+--     IB1 <="11111100000000000000000000000000"; 
+--     wait for clock_period;
+--		IB1<="00000000001000010001100000000011";
+--	   wait for clock_period;
+--		IB1<="00000000001000010010000000000001";
+--     wait for clock_period;
+--	  	IB1<="10101100001000000000000000000000";
+--     wait for clock_period;
+--      wait;
    end process;
 
 END;

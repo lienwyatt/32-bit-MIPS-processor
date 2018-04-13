@@ -34,7 +34,7 @@ entity control is
 port(
 clk: in std_logic;
 IR2, IR3, IR4, IR5 : in std_logic_vector(31 downto 0);
-PCsel, LoadSel, Rselect, RegWrite, Asel: out std_logic;
+PCsel, LoadSel, Rselect, RegWrite, Asel, readWrite: out std_logic;
 Bsel: out std_logic_vector(1 downto 0)
 );
 end control;
@@ -116,14 +116,22 @@ begin
     end if;    
 end process;
 Asel<=achoose;
-
+--check opcodes
 	with concat4 select stored<=
-	'1' when "000000100000" | "000000100001" | "000000100100" | "000000100101" | "000000000000" | "0000000000100" | "000000101010" | "000000101011" | "000000000011" | "000000000010" | "000000000110" | "000000100011" | "000000100110",
+	'1' when "000000100000" | "000000100001" | "000000100100" | "000000100101" | "000000000000" | "000000000100" | "000000101010" | "000000101011" | "000000000011" | "000000000010" | "000000000110" | "000000100011" | "000000100110",
 	'0' when others;
-	
+--check opcodes
 	with opcode4  select storet<=
-	'1' when "01001" | "001100" | "100000" | "100011" | "001101" | "0011010" | "001011" | "001110" |"01000",
-	'1' when others;
+	'1' when "001001" | "001100" | "100000" | "100011" | "001101" | "011010" | "001011" | "001110" |"010000",
+	'0' when others; -- was '1' previously, double check
+
+--	with concat4 select stored<=
+--	'1' when "000000100000" | "000000100001" | "000000100100" | "000000100101" | "000000000000" | "0000000000100" | "000000101010" | "000000101011" | "000000000011" | "000000000010" | "000000000110" | "000000100011" | "000000100110",
+--	'0' when others;
+	
+--	with opcode4  select storet<=
+--	'1' when "01001" | "001100" | "100000" | "100011" | "001101" | "0011010" | "001011" | "001110" |"01000",
+--	'1' when others;
 	
 	with opcode3 select B<=
 	'0' when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111",
@@ -140,5 +148,9 @@ Asel<=achoose;
 	with opcode5 select RegWrite <=
 	   '1' when "000000"|"001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111",
 	   '0' when others;
+		
+	with opcode4 select readWrite <=
+	'1' when "101000",
+	'0' when others;
 	   
 end Behavioral;

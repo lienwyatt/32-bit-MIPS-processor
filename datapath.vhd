@@ -38,6 +38,7 @@ entity Datapath is
     AB2: out std_logic_vector(31 downto 0);
     DB2: out std_logic_vector(31 downto 0);
     DB3: in std_logic_vector(31 downto 0);
+	 memWrite: out std_logic;
 	 reset: std_logic; -- used for resetting pc to first address
     clock: in std_logic);
 end Datapath;
@@ -59,7 +60,7 @@ architecture Behavioral of Datapath is
     signal MDR5: std_logic_vector(31 downto 0);
     signal PC: std_logic_vector(31 downto 0);
     signal zero4: std_logic;
-    
+    signal readWrite: std_logic;
     
     
     signal Rs: std_logic_vector(4 downto 0);--gpr signals
@@ -90,6 +91,7 @@ architecture Behavioral of Datapath is
      inputA: in std_logic_vector(31 downto 0);
      inputB: in std_logic_vector(31 downto 0);
      op: in std_logic_vector(5 downto 0);
+	 offs: in std_logic_vector(4 downto 0);
      func: in std_logic_vector(5 downto 0);
      output: out std_logic_vector(31 downto 0);
      overflow: out std_logic;
@@ -129,7 +131,8 @@ architecture Behavioral of Datapath is
 	 Asel : out std_logic;
 	 LoadSel : out std_logic;
 	 Rselect : out std_logic;
-	 RegWrite: out std_logic
+	 RegWrite: out std_logic;
+	 readWrite: out std_logic
 	);
 	end component;
 	 
@@ -151,6 +154,7 @@ Arithmetic_logic_unit: ALU port map(
     inputB=>mux3,
     op=>IR3(31 downto 26),
     func=>IR3(5 downto 0),
+	offs=>IR3(10 downto 6),
     output=>aluoutput,
     overflow=> aluoverflow,
     carryout=> alucarry,
@@ -168,7 +172,8 @@ Control_unit: control port map(
 	Bsel=>Bsel,
 	Rselect=>Rselect,
 	LoadSel=>LoadSel,
-	RegWrite=>regwrite
+	RegWrite=>regwrite,
+	readWrite => readWrite
 );
 
 DB2<=B4;
@@ -176,6 +181,7 @@ AB2<=ALU4;
 AB1<=PC;
 Rs<=IR2(25 downto 21);
 Rt<=IR2(20 downto 16);
+memWrite<= readWrite;
 
 process(clock)
 begin
@@ -246,7 +252,5 @@ with Bsel select mux3 <=
     B3 when "01",
     ALU4 when "11",
     IMM3 when others;
-
-
 
 end Behavioral;
