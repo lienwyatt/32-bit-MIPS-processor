@@ -1,0 +1,184 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 03/27/2018 04:09:03 PM
+-- Design Name: 
+-- Module Name: Datapth_testbench - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 03/02/2018 02:36:25 PM
+-- Design Name: 
+-- Module Name: Datapath - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+--------------------------------------------------------------------------------
+-- Company: 
+-- Engineer:
+--
+-- Create Date:   15:53:13 03/27/2018
+-- Design Name:   
+-- Module Name:   C:/Users/Jesse Coma/Data_path/alutest.vhd
+-- Project Name:  Data_path
+-- Target Device:  
+-- Tool versions:  
+-- Description:   
+-- 
+-- VHDL Test Bench Created by ISE for module: Datapath
+-- 
+-- Dependencies:
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+--
+-- Notes: 
+-- This testbench has been automatically generated using types std_logic and
+-- std_logic_vector for the ports of the unit under test.  Xilinx recommends
+-- that these types always be used for the top-level I/O of a design in order
+-- to guarantee that the testbench will bind correctly to the post-implementation 
+-- simulation model.
+--------------------------------------------------------------------------------
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+ 
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--USE ieee.numeric_std.ALL;
+ 
+ENTITY CPU IS
+PORT(
+      clk    : IN    STD_LOGIC;--clock
+      btnD    : IN    STD_LOGIC; --left bits/right bits
+      btnU    : IN    STD_LOGIC; --reset
+      led    : OUT    STD_LOGIC_VECTOR(15 DOWNTO 0)
+);
+END CPU;
+ 
+ARCHITECTURE behavioral OF CPU IS 
+
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT Datapath
+    PORT(
+         AB1 : OUT  std_logic_vector(31 downto 0);
+         IB1 : IN  std_logic_vector(31 downto 0);
+         AB2 : OUT  std_logic_vector(31 downto 0);
+         DB2 : OUT  std_logic_vector(31 downto 0);
+         DB3 : IN  std_logic_vector(31 downto 0);
+         memWrite : OUT std_logic;
+         reset : IN  std_logic;
+         clock : IN  std_logic
+        );
+    END COMPONENT;
+    
+    component memory_unit
+        port(
+        ab1: in std_logic_vector(31 downto 0); -- pc (address of instruction)
+        ib1: out std_logic_vector(31 downto 0); -- instruction fetched from memory
+    
+        ab2: in std_logic_vector(31 downto 0); --  address of data (to be fetched or written to)
+        db2: in std_logic_vector(31 downto 0); -- carries the data to be written to memory
+        write_en : in std_logic; -- write enable
+        db3: out std_logic_vector(31 downto 0); -- data out
+    
+        clear: in std_logic; -- clear bit (for data memory)
+        clock : in std_logic -- clock signal
+        );
+        end component;
+   
+   
+   --Inputs
+   signal IB1sig : std_logic_vector(31 downto 0) := (others => '0');
+   signal DB3 : std_logic_vector(31 downto 0) := (others => '0');
+   signal reset : std_logic;
+   signal clock : std_logic := '0';
+
+     --Outputs
+   signal AB1 : std_logic_vector(31 downto 0);
+   signal AB2 : std_logic_vector(31 downto 0);
+   signal DB2 : std_logic_vector(31 downto 0);
+    signal MemWrite: std_logic;
+    signal led_sig : std_logic_vector(31 downto 0);
+    signal output  : std_logic_vector(31 downto 0);
+   -- Clock period definitions
+   constant clock_period : time := 10 ns;
+ 
+BEGIN
+clock<=clk;
+reset<=btnU;
+    -- Instantiate the Unit Under Test (UUT)
+   uut: Datapath PORT MAP (
+          AB1 => AB1,
+          IB1 => IB1sig,
+          AB2 => AB2,
+          DB2 => DB2,
+          DB3 => DB3,
+          memWrite => MemWrite,
+          reset => reset,
+          clock => clock
+        );
+        
+    memory: memory_unit PORT MAP(
+    ab1 => AB1,
+    ib1 => IB1sig,
+    ab2 => AB2,
+    db2 => DB2,
+    db3 => DB3,
+    write_en => MemWrite,
+    clear =>reset,
+    clock => clock
+    );
+process(Memwrite)--THIS PRINTS TO LEDS THE LAST THING TO BE WRITTEN TO MEMORY
+begin
+if (memWrite='1') then 
+    output<=DB3;
+end if;
+end process;
+
+
+process(btnU)
+begin
+if (btnD='1') then 
+    led<=output(31 downto 16);
+else 
+    led<=output(15 downto 0);
+end if;
+end process;
+
+END;
