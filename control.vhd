@@ -34,7 +34,8 @@ entity control is
 port(
 clk: in std_logic;
 IR2, IR3, IR4, IR5 : in std_logic_vector(31 downto 0);
-PCsel, LoadSel, Rselect, RegWrite, Asel, readWrite: out std_logic;
+ LoadSel, Rselect, RegWrite, Asel, readWrite: out std_logic;
+PCsel: out std_logic_vector(2 downto 0);
 Bsel: out std_logic_vector(1 downto 0)
 );
 end control;
@@ -64,17 +65,21 @@ architecture Behavioral of control is
 		
 		case opcode4 is
 		when "000000" =>
-		if (funct4 = "101000")  then
-			PCsel <='0';
-		elsif (funct4 = "101001") then
-			PCsel<='0';
+		if (funct4 = "101000")  then--RIGHT?
+			PCsel <="000";
+		elsif (funct4 = "101001") then--RIGHT?
+			PCsel<="000";
+	    elsif (funct4 = "000010") then
+            PCsel<="011";--jump
 		end if;
 		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
-			PCsel <='0';
+			PCsel <="000";
 		when "111111"=>
-		--do nothing(nop) 	
+		PCsel<="001"; --noop
+		when "000001"|"000100"|"000101"=>--BLTZ, beq, bne
+		     PCsel<="010";
 		when others=>
-		PCsel <='1';
+		PCsel <="001";
 		end case;
 	end process;
 		-----ID
@@ -123,19 +128,19 @@ Asel<=achoose;
 --check opcodes
 	with opcode4  select storet<=
 	'1' when "001001" | "001100" | "100000" | "100011" | "001101" | "011010" | "001011" | "001110" |"010000",
-	'0' when others; -- was '1' previously, double check
+    '0' when others;
 
---	with concat4 select stored<=
---	'1' when "000000100000" | "000000100001" | "000000100100" | "000000100101" | "000000000000" | "0000000000100" | "000000101010" | "000000101011" | "000000000011" | "000000000010" | "000000000110" | "000000100011" | "000000100110",
---	'0' when others;
+	with concat4 select stored<=
+	'1' when "000000100000" | "000000100001" | "000000100100" | "000000100101" | "000000000000" | "0000000000100" | "000000101010" | "000000101011" | "000000000011" | "000000000010" | "000000000110" | "000000100011" | "000000100110",
+	'0' when others;
 	
---	with opcode4  select storet<=
---	'1' when "01001" | "001100" | "100000" | "100011" | "001101" | "0011010" | "001011" | "001110" |"01000",
---	'1' when others;
+	with opcode4  select storet<=
+	'1' when "01001" | "001100" | "100000" | "100011" | "001101" | "0011010" | "001011" | "001110" |"01000",
+	'0' when others;
 	
 	with opcode3 select B<=
-	'0' when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111",
-	'1' when others; -- need to add all of the other opcodes
+	'1' when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111",
+	'0' when others; -- need to add all of the other opcodes
 
 	with opcode5 select LoadSel <=
 	'1' when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111"| "000000",
@@ -152,5 +157,3 @@ Asel<=achoose;
 	with opcode4 select readWrite <=
 	'1' when "101000",
 	'0' when others;
-	   
-end Behavioral;
