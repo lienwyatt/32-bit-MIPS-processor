@@ -43,7 +43,7 @@ func: in std_logic_vector(5 downto 0);
 output: out std_logic_vector(31 downto 0);
 overflow: out std_logic;
 carryout: out std_logic;
-zero: out std_logic
+branch: out std_logic
 );
 end ALU;
 
@@ -349,7 +349,27 @@ begin
 						end if;
 					end if;
 				end if;
-				
+				-------------------------------------------------------------BRANCH STUFF
+	     when "000100"=>--BEQ
+	          if (inputA=inputB) then
+	              branch<='1';
+	          else 
+	           branch<='0';
+	          end if;
+	     when "000101"=>--BNE
+            if (NOT (inputA=inputB)) then
+                branch<='1';
+            else 
+             branch<='0';
+            end if;
+                       
+	     when "000001" =>--Branch on less than than zero (we are ignoring the other bits for now)
+	         if (inputA(31)='1') then--if the signed number is negative
+	            branch<='1';
+	         else 
+	            branch<='0';
+	         end if;
+	     
 		 when "001011"=> --(set on less than immediate unsigned)
 			 if(Aunsigned < Bunsigned) then
 				output_sig<= "000000000000000000000000000000001";
@@ -370,12 +390,12 @@ begin
 	end case;
 end process;
 
-process(output_sig)
-begin
-    if (output_sig = "000000000000000000000000000000000") then zero <= '1';
-    end if;
+--process(output_sig)
+--begin
+ --   if (output_sig = "000000000000000000000000000000000") then zero <= '1';
+   -- end if;
 
-end process;
+--end process;
 	 	output<=output_sig(31 downto 0);				
 
 end Behavioral;
