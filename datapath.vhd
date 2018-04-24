@@ -59,8 +59,10 @@ architecture Behavioral of Datapath is
     signal ALU5: std_logic_vector(31 downto 0);
     signal MDR5: std_logic_vector(31 downto 0);
     signal PC: std_logic_vector(31 downto 0);
-    signal zero4: std_logic;
+    signal branch4: std_logic;
     signal readWrite: std_logic;
+    signal pc_count: std_logic_vector (31 downto 0);
+    
     
     
     signal Rs: std_logic_vector(4 downto 0);--gpr signals
@@ -84,19 +86,20 @@ architecture Behavioral of Datapath is
      
      signal aluoutput: std_logic_vector(31 downto 0);--alu signals
      signal aluoverflow: std_logic;
-     signal aluzero: std_logic;
-     signal alucarry: std_logic;   
+     signal alubranch: std_logic;
+     signal alucarry: std_logic;
+     --signal sign_extended_imm: std_logic_vector(18 downto 0);   
      component ALU
      port(
      inputA: in std_logic_vector(31 downto 0);
      inputB: in std_logic_vector(31 downto 0);
      op: in std_logic_vector(5 downto 0);
-	 offs: in std_logic_vector(4 downto 0);
+	  offs: in std_logic_vector(4 downto 0);--should this exist
      func: in std_logic_vector(5 downto 0);
      output: out std_logic_vector(31 downto 0);
      overflow: out std_logic;
      carryout: out std_logic;
-     zero: out std_logic
+     branch: out std_logic
      );
     end component;
 	 
@@ -109,7 +112,7 @@ architecture Behavioral of Datapath is
     
     
     
-    signal PCsel: std_logic;--control unit signals
+    signal PCsel: std_logic_vector(2 downto 0);--control unit signals
     signal Bsel: std_logic_vector(1 downto 0);
     signal Rselect: std_logic;
     signal Loadsel: std_logic;
@@ -126,7 +129,7 @@ architecture Behavioral of Datapath is
 	 IR3 : in std_logic_vector(31 downto 0);
 	 IR4 : in std_logic_vector(31 downto 0);
 	 IR5 : in std_logic_vector(31 downto 0);
-	 PCsel : out std_logic;
+	 PCsel : out std_logic_vector (2 downto 0);
 	 Bsel : out std_logic_vector(1 downto 0);
 	 Asel : out std_logic;
 	 LoadSel : out std_logic;
@@ -154,11 +157,11 @@ Arithmetic_logic_unit: ALU port map(
     inputB=>mux3,
     op=>IR3(31 downto 26),
     func=>IR3(5 downto 0),
-	offs=>IR3(10 downto 6),
+	 offs=>IR3(10 downto 6),--should this exist
     output=>aluoutput,
     overflow=> aluoverflow,
     carryout=> alucarry,
-    zero=>aluzero
+    branch=>alubranch
     );
 	 
 Control_unit: control port map(
@@ -175,7 +178,7 @@ Control_unit: control port map(
 	RegWrite=>regwrite,
 	readWrite => readWrite
 );
-
+--sign_extended_imm<=IR4 
 DB2<=B4;
 AB2<=ALU4;
 AB1<=PC;
@@ -183,21 +186,26 @@ Rs<=IR2(25 downto 21);
 Rt<=IR2(20 downto 16);
 memWrite<= readWrite;
 
-process(clock)
+process(PCsel, reset)
 begin
-if(clock' event and clock='1') then
-    if(PCsel='1') then
-        mux1<=PC+"00000000000000000000000000000100";
-    else 
-        mux1<=TA4;
-    end if;
-end if;
+case(PCsel) is
+    when "001"=>--pc goes up 4
+        mux1<=pc_count;
+    when"010"=>--branch
+       mux1<=TA4;
+    when "011"=>--Jump;
+       mux1(27 downto 2)<=IR4(25 downto 0); --(IR4<<2)|(PC&0xF000000)
+       mux1(1 downto 0)<="00";
+       mux1(31 downto 28)<=PC(31 downto 28);
+     when others=>--shouldnt be entered
+        mux1<=pc_count;
+     end case;
 end process;
 
-process(clock)
+process(clock, reset)
 begin
 if(clock' event and clock='1') then
-   zero4<=aluzero;
+   branch4<=alubranch;
    A3<=A;
    B3<=B;
    B4<=B3;
@@ -235,6 +243,13 @@ begin
 end process;
 
 
+process (clock, reset)
+begin
+    if(clock' event AND clock='1') then 
+        pc_count<=PC+"00000000000000000000000000000100";
+    end if;
+end process;
+
 with Loadsel select mux4 <=
 ALU5 when '1',
 MDR5 when others;
@@ -254,3 +269,4 @@ with Bsel select mux3 <=
     IMM3 when others;
 
 end Behavioral;
+
