@@ -1,3 +1,4 @@
+
 -- Company: 
 -- Engineer: 
 -- 
@@ -64,22 +65,21 @@ architecture Behavioral of control is
 		---IF
 		
 		case opcode4 is
-		when "000000" =>
-		if (funct4 = "101000")  then--RIGHT?
-			PCsel <="000";
-		elsif (funct4 = "101001") then--RIGHT?
-			PCsel<="000";
-	    elsif (funct4 = "000010") then
+		--when "000000" =>
+		--if (funct4 = "101000")  then--RIGHT?
+		--	PCsel <="000";
+		--elsif (funct4 = "101001") then--RIGHT?
+		--	PCsel<="000";
+	    when "000010"=>
             PCsel<="011";--jump
-		end if;
-		when "000001"|"000010"|"000011"|"000100"|"000101"|"000111"|"001000"=>
-			PCsel <="000";
+		--when "000001"|"000011"|"000100"|"000101"|"000111"|"001000"=>--branch
+			--PCsel <="010";
 		when "111111"=>
 		PCsel<="001"; --noop
 		when "000001"|"000100"|"000101"=>--BLTZ, beq, bne
 		     PCsel<="010";
 		when others=>
-		PCsel <="001";
+		PCsel <="001";--increase pc by 4
 		end case;
 	end process;
 		-----ID
@@ -157,3 +157,4 @@ Asel<=achoose;
 	with opcode4 select readWrite <=
 	'1' when "101000",
 	'0' when others;
+	   
