@@ -141,7 +141,7 @@ end process;
 --process to read/write data, data memory can be cleared as well
 process(clock, clear)
 begin
-	if(clear <= '1') then
+	if(clear = '1') then
 		data_mem <= data_mem_cleared;
 	else
 		if(clock = '1' and clock' event) then
