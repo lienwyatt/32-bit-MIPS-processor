@@ -61,7 +61,7 @@ architecture Behavioral of Datapath is
     signal PC: std_logic_vector(31 downto 0);
     signal branch4: std_logic;
     signal readWrite: std_logic;
-    signal pc_count: std_logic_vector (31 downto 0);
+    signal pc_count: std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
     
     
     
@@ -185,22 +185,13 @@ AB1<=PC;
 Rs<=IR2(25 downto 21);
 Rt<=IR2(20 downto 16);
 memWrite<= readWrite;
+pc_count <= PC + "00000000000000000000000000000100";
 
-process(PCsel, reset)
-begin
-case(PCsel) is
-    when "001"=>--pc goes up 4
-        mux1<=pc_count;
-    when"010"=>--branch
-       mux1<=TA4;
-    when "011"=>--Jump;
-       mux1(27 downto 2)<=IR4(25 downto 0); --(IR4<<2)|(PC&0xF000000)
-       mux1(1 downto 0)<="00";
-       mux1(31 downto 28)<=PC(31 downto 28);
-     when others=>--shouldnt be entered
-        mux1<=pc_count;
-     end case;
-end process;
+with PCsel select mux1<= 
+pc_count when "001",
+TA4 when "010",
+PC(31 downto 28) & IR4(25 downto 0) & "00" when "011",
+pc_count when others;
 
 process(clock, reset)
 begin
@@ -242,14 +233,6 @@ begin
 	end if;
 end process;
 
-
-process (clock, reset)
-begin
-    if(clock' event AND clock='1') then 
-        pc_count<=PC+"00000000000000000000000000000100";
-    end if;
-end process;
-
 with Loadsel select mux4 <=
 ALU5 when '1',
 MDR5 when others;
@@ -269,4 +252,3 @@ with Bsel select mux3 <=
     IMM3 when others;
 
 end Behavioral;
-
