@@ -146,7 +146,7 @@ begin
 	else
 		if(clock = '1' and clock' event) then
 			-- write data to memory
-			if(write_en <= '1') then
+			if(write_en = '1') then
 				data_mem(to_integer(unsigned(data_addr))/4) <= data_in;
 			end if;
 			data_out <= data_mem(to_integer(unsigned(data_addr))/4); -- read data
