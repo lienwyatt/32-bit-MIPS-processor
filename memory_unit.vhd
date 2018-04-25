@@ -134,7 +134,7 @@ data_in <= db2;
 process(clock)
 begin
 	if(clock = '1' and clock' event) then
-		inst <= inst_mem(to_integer(unsigned(inst_addr))/4);
+		inst <= inst_mem(to_integer(unsigned(inst_addr)));
 	end if;
 end process;
 
@@ -147,9 +147,9 @@ begin
 		if(clock = '1' and clock' event) then
 			-- write data to memory
 			if(write_en = '1') then
-				data_mem(to_integer(unsigned(data_addr))/4) <= data_in;
+				data_mem(to_integer(unsigned(data_addr))) <= data_in;
 			end if;
-			data_out <= data_mem(to_integer(unsigned(data_addr))/4); -- read data
+			data_out <= data_mem(to_integer(unsigned(data_addr))); -- read data
 		end if;
 	end if;
 end process;
@@ -159,5 +159,7 @@ db3 <= data_out;
 
 
 end Behavioral;
+
+
 
 
