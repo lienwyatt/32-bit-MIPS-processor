@@ -35,10 +35,7 @@ entity ALU is
 port(
 inputA, inputB: in std_logic_vector(31 downto 0);
 op: in std_logic_vector(5 downto 0);
---<<<<<<< HEAD
 offs: in std_logic_vector(4 downto 0);
---=======
--->>>>>>> origin/master
 func: in std_logic_vector(5 downto 0);
 output: out std_logic_vector(31 downto 0);
 overflow: out std_logic;
@@ -386,6 +383,10 @@ begin
 		 when "001111"=> --(load upper immediate) 
 				output_sig(15 downto 0)<="0000000000000000";
 				output_sig(31 downto 16)<=Aunsigned(15 downto 0);
+		when "100011"=> --loadword
+				output_sig<=Aunsigned;
+		when "101011"=>--storeword
+				output_sig<=Bunsigned;
 		when others =>
 	end case;
 end process;
