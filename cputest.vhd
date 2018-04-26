@@ -99,7 +99,7 @@ BEGIN
 		  
 memory: memory_unit PORT MAP(
 	ab1 => AB1,
-	--ib1 => IB1sig,
+	ib1 => IB1sig,
 	ab2 => AB2,
 	db2 => DB2,
 	db3 => DB3,
@@ -130,22 +130,22 @@ memory: memory_unit PORT MAP(
 
 --IB1<="00000000001000010001100000000011";
 --	   wait for clock_period;
-		IB1sig<="00000000000000010001100000100000";
-		     wait for clock_period;
-	  	IB1sig<="00000000001000110001100000100000";--r3+1
-             wait for clock_period;
-        IB1sig<="00000000001000110001100000100000";--r3+1
-               wait for clock_period;
-        IB1sig <="00001000000000000000000000000111"; --jump to pc 7
-             wait for clock_period;
-        IB1sig<="00000000001000110001100000100000";--r3+1
-             wait for clock_period;
-        IB1sig<="00000000001000110001100000100000";--r3+1
-                  wait for clock_period;
-        IB1sig<="00000000001000110001100000100000";--r3+1
-                       wait for clock_period;
-        IB1sig<="00000000001000110001100000100000";--r3+1
-                            wait for clock_period;
+--		IB1sig<="00000000000000010001100000100000";
+--		     wait for clock_period;
+--	  	IB1sig<="00000000001000110001100000100000";--r3+1
+--             wait for clock_period;
+--        IB1sig<="00000000001000110001100000100000";--r3+1
+--               wait for clock_period;
+--        IB1sig <="00001000000000000000000000000111"; --jump to pc 7
+--             wait for clock_period;
+--        IB1sig<="00000000001000110001100000100000";--r3+1
+--             wait for clock_period;
+--        IB1sig<="00000000001000110001100000100000";--r3+1
+--                  wait for clock_period;
+--        IB1sig<="00000000001000110001100000100000";--r3+1
+--                       wait for clock_period;
+--        IB1sig<="00000000001000110001100000100000";--r3+1
+--                            wait for clock_period;
 --     wait for clock_period;
 --      wait;
    end process;
