@@ -105,7 +105,7 @@ begin
     if ((IR4(20 downto 16)=IR3(20 downto 16) AND storet='1')OR(IR4(15 downto 11)=IR3(20 downto 16) AND stored='1')) then bchoose<='1';
     else bchoose<='0';
     end if;
-    if ((IR4(20 downto 16)=IR3(20 downto 16) AND storet='1')OR(IR4(15 downto 11)=IR3(25 downto 21) AND stored='1')) then achoose<='1';
+    if ((IR4(20 downto 16)=IR3(25 downto 21) AND storet='1')OR(IR4(15 downto 11)=IR3(25 downto 21) AND stored='1')) then achoose<='1';
         else achoose<='0';
    end if;
 end process;
