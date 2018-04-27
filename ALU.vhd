@@ -384,9 +384,25 @@ begin
 				output_sig(15 downto 0)<="0000000000000000";
 				output_sig(31 downto 16)<=Aunsigned(15 downto 0);
 		when "100011"=> --loadword
-				output_sig<=Aunsigned;
+				output_sig <= std_logic_vector(signed(Asigned) + signed(Bsigned));
+                             if Asigned(31) /= Bsigned(31) then -- adding a positive and negative number, cant have overflow
+                                overflow <= '0';
+                            else
+                                if output_sig(31) /= Asigned(31) then --both numbers are positive or both numbers are negative (output MSB must match input MSBs which are the same since boeth are of same sign)
+                                    overflow <= '1';
+                                else overflow <= '0';
+                                end if;
+                           end if;
 		when "101011"=>--storeword
-				output_sig<=Bunsigned;
+					output_sig <= std_logic_vector(signed(Asigned) + signed(Bsigned));
+                     if Asigned(31) /= Bsigned(31) then -- adding a positive and negative number, cant have overflow
+                        overflow <= '0';
+                    else
+                        if output_sig(31) /= Asigned(31) then --both numbers are positive or both numbers are negative (output MSB must match input MSBs which are the same since boeth are of same sign)
+                            overflow <= '1';
+                        else overflow <= '0';
+                        end if;
+                    end if;
 		when others =>
 	end case;
 end process;
