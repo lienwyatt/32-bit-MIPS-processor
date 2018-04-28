@@ -83,15 +83,14 @@ begin
 						end if;
 					end if;
 				when "100001" => --(unsigned addition)
-					output_sig <= std_logic_vector( unsigned(Aunsigned) + unsigned(Bunsigned));
+					output_sig <= std_logic_vector(unsigned(Aunsigned) + unsigned(Bunsigned));
 					if output_sig(32) = '1' then
 						overflow <= '1';
 					else 
 						overflow <= '0';
 					end if;
 				when "100010" => --(subtraction)
-					Bsigned_tmp <= not(Bsigned) + '1';
-					output_sig <= Asigned + Bsigned_tmp;
+					output_sig <= std_logic_vector(signed(Asigned) - signed(Bsigned));
 					if(Asigned(31) = Bsigned(31)) then--overflow handling. A and B have different signs
 						overflow <= '0';
 					elsif(Asigned(31) = '1') then -- A is negative, so B must be positive according to previous if (above the else)
@@ -112,7 +111,7 @@ begin
 						end if;
 					
 				when "100011" => --(unsigned subtraction)
-					output_sig <= Aunsigned - Bunsigned;
+					output_sig <= std_logic_vector(unsigned(Aunsigned) + unsigned(Bunsigned));
 					if (Aunsigned >= Bunsigned) then
 						overflow <= '0';
 					else
@@ -309,8 +308,8 @@ begin
 				
 			 end case; -- opcodes are no longer x00
 		 
-		 when "001000"=> --(add immediate) 
-			  output_sig <=Asigned + Bsigned;
+		 when "001000"=> --(add immediate signed) 
+			  output_sig <= std_logic_vector(signed(Asigned) + signed(Bsigned));
 				 if (Asigned(31) /= Bsigned(31)) then
 					overflow <= '0';
 				else
@@ -321,7 +320,7 @@ begin
 					end if;
 				end if;
 		 when "001001"=> --(add immediate unsigned)
-			 output_sig <= Aunsigned + Bunsigned;
+			 output_sig <= std_logic_vector(unsigned(Aunsigned) + unsigned(Bunsigned));
 			 if(output_sig(32) = '1') then
 				overflow <= '1';
 			else 
