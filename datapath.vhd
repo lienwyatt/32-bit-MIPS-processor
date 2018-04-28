@@ -59,7 +59,7 @@ architecture Behavioral of Datapath is
     signal ALU5: std_logic_vector(31 downto 0);
     signal MDR5: std_logic_vector(31 downto 0);
     signal PC: std_logic_vector(31 downto 0);
-    signal branch4: std_logic;
+    --signal branch4: std_logic;
     signal readWrite: std_logic;
     signal pc_count: std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
     
@@ -125,6 +125,7 @@ architecture Behavioral of Datapath is
 	 component control  
 	 port(
 	 clk : in std_logic;
+	 branch : in std_logic;
 	 IR2 : in std_logic_vector(31 downto 0);
 	 IR3 : in std_logic_vector(31 downto 0);
 	 IR4 : in std_logic_vector(31 downto 0);
@@ -166,6 +167,7 @@ Arithmetic_logic_unit: ALU port map(
 	 
 Control_unit: control port map(
 	clk=>clock,
+	branch=>alubranch,
 	IR2=>IR2,
 	IR3=>IR3,
 	IR4=>IR4,
@@ -196,11 +198,11 @@ pc_count when others;
 process(clock, reset)
 begin
 if(clock' event and clock='1') then
-   branch4<=alubranch;
+   --branch4<=alubranch;
    A3<=A;
    B3<=B;
    B4<=B3;
-   NPC2<=mux1;
+   NPC2<=PC;
    MDR5<=DB3;
    NPC3<=NPC2;
    ALU4<=aluoutput; 
@@ -210,14 +212,16 @@ if(clock' event and clock='1') then
    IR4<=IR3;
    IR5<=IR4;
 
-   TA4(31 downto 2)<=IMM3(29 downto 0);--pc = imm x 4
-   TA4(1 downto 0)<= "00";
-   IMM3(15 downto 0)<=IR2(15 downto 0);--sign extend
+	
+	IMM3(15 downto 0)<=IR2(15 downto 0);--sign extend
    if (IR2(15)='1') then
        IMM3(31 downto 16)<="1111111111111111";
    else
        IMM3(31 downto 16)<="0000000000000000";
    end if;
+	
+   TA4(31 downto 0)<=(IMM3(29 downto 0) & "00") + NPC3;--pc = (imm x 4) + npc3
+	
 end if;
 end process;
 
@@ -252,3 +256,4 @@ with Bsel select mux3 <=
     IMM3 when others;
 
 end Behavioral;
+
