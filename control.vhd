@@ -33,6 +33,7 @@ use ieee.std_logic_unsigned.all;
 entity control is
 port(
 clk: in std_logic;
+branch: in std_logic;
 IR2, IR3, IR4, IR5 : in std_logic_vector(31 downto 0);
 LoadSel, Rselect, RegWrite, Asel, readWrite: out std_logic;
 PCsel: out std_logic_vector(2 downto 0);
@@ -73,7 +74,9 @@ architecture Behavioral of control is
 		when "111111"=>
 		PCsel<="001"; --noop
 		when "000001"|"000100"|"000101"=>--BLTZ, beq, bne
-		     PCsel<="010";
+			if(branch = '1') then
+				PCsel<="010";
+			end if;
 		when others=>
 		PCsel <="001";--increase pc by 4
 		end case;
