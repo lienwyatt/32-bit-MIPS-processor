@@ -129,7 +129,7 @@ Asel<=achoose;
     '0' when others;
 	
 	with opcode3 select B<=
-	'0' when "001000"| "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111",
+	'0' when "001000"| "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111" | "100011" | "101011",--options that use immediates
 	'1' when others; -- need to add all of the other opcodes
 
 	with opcode5 select LoadSel <=
