@@ -74,9 +74,11 @@ architecture Behavioral of control is
 		when "111111"=>
 		PCsel<="001"; --noop
 		when "000001"|"000100"|"000101"=>--BLTZ, beq, bne
-			if(branch = '1') then
-				PCsel<="010";
-			end if;
+		     if (branch='1') then
+		         PCsel<="010";
+		     else 
+		         PCsel<="001";
+		     end if;
 		when others=>
 		PCsel <="001";--increase pc by 4
 		end case;
@@ -115,9 +117,9 @@ end process;
 
 process(B, bchoose)
 begin
-    if (bchoose='1')then Bsel<="11";
-    elsif(B='1') then Bsel<="01";
-    else Bsel<="00";
+    if (bchoose='1')then Bsel<="11";--forwarding data
+    elsif(B='1') then Bsel<="01";--adding from reg
+    else Bsel<="00";--adding immediate
     end if;    
 end process;
 
