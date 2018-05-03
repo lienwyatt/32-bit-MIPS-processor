@@ -74,6 +74,7 @@ architecture Behavioral of Datapath is
     signal regwrite: std_logic; 
     component registerfile
      port(
+		  clk: in std_logic;
         readreg1: in std_logic_vector(4 downto 0);
         readreg2: in std_logic_vector(4 downto 0);
         writereg: in std_logic_vector(4 downto 0);
@@ -115,7 +116,7 @@ architecture Behavioral of Datapath is
     
     signal PCsel: std_logic_vector(2 downto 0);--control unit signals
     signal Bsel: std_logic_vector(1 downto 0);
-    signal Rselect: std_logic;
+    signal Rselect: std_logic_vector(1 downto 0);
     signal Loadsel: std_logic;
     signal Rsel: std_logic_vector(4 downto 0);
     signal Asel: std_logic;
@@ -135,7 +136,7 @@ architecture Behavioral of Datapath is
 	 Bsel : out std_logic_vector(1 downto 0);
 	 Asel : out std_logic;
 	 LoadSel : out std_logic;
-	 Rselect : out std_logic;
+	 Rselect : out std_logic_vector(1 downto 0);
 	 RegWrite: out std_logic;
 	 readWrite: out std_logic
 	);
@@ -144,6 +145,7 @@ architecture Behavioral of Datapath is
 begin
 
 gpr: registerfile port map(
+	 clk=>clock,
     readreg1=>Rs,
     readreg2=>Rt,
     writereg=>Rsel,
@@ -241,8 +243,10 @@ ALU5 when '1',
 MDR5 when others;
 
 with Rselect select Rsel <=
-    IR5(15 downto 11) when '1',
-    IR5(20 downto 16) when others;
+    IR5(15 downto 11) when "01",
+    IR5(20 downto 16) when "00",
+	 "00000" when others;
+	 
 
 with Asel select mux5<=
     ALU4 when '1',
@@ -254,4 +258,4 @@ with Bsel select mux3 <=
     ALU4 when "11",
     IMM3 when others;
 
-end Behavioral
+end Behavioral;
