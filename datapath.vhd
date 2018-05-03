@@ -47,6 +47,7 @@ architecture Behavioral of Datapath is
     signal NPC2: std_logic_vector(31 downto 0);--registers
     signal NPC3: std_logic_vector(31 downto 0);
     signal TA4: std_logic_vector(31 downto 0);
+    signal TA: std_logic_vector(31 downto 0);
     signal A3: std_logic_vector(31 downto 0);
     signal B3: std_logic_vector(31 downto 0);
     signal B4: std_logic_vector(31 downto 0);
@@ -194,7 +195,8 @@ pc_count when "001",
 TA4 when "010",      
 PC(31 downto 28) & IR4(25 downto 0) & "00" when "011",
 pc_count when others;
-
+TA(31 downto 2)<=IMM3(29 downto 0);--pc = imm x 4
+TA(1 downto 0)<= "00";
 process(clock, reset)
 begin
 if(clock' event and clock='1') then
@@ -211,9 +213,8 @@ if(clock' event and clock='1') then
    IR3<=IR2;
    IR4<=IR3;
    IR5<=IR4;
+   TA4<=TA+NPC3;
 
-   TA4(31 downto 2)<=IMM3(29 downto 0);--pc = imm x 4
-   TA4(1 downto 0)<= "00";
    IMM3(15 downto 0)<=IR2(15 downto 0);--sign extend
    if (IR2(15)='1') then
        IMM3(31 downto 16)<="1111111111111111";
@@ -253,4 +254,4 @@ with Bsel select mux3 <=
     ALU4 when "11",
     IMM3 when others;
 
-end Behavioral;
+end Behavioral
