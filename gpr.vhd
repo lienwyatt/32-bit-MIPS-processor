@@ -33,6 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity registerfile is
     port(
+	 clk: in std_logic;
     readreg1: in std_logic_vector(4 downto 0);
     readreg2: in std_logic_vector(4 downto 0);
     writereg: in std_logic_vector(4 downto 0);
@@ -156,9 +157,9 @@ case readreg2 is
         when others =>
     end case;
 end process;
-process(writereg, regwrite, writedata)
+process(writereg, regwrite, writedata, clk)
 begin 
-if (regwrite='1') then
+if (regwrite='1' and clk' event and clk='1') then
 case writereg is 
     when "00010"=> R2<=writedata;
     when "00011"=> R3<=writedata;
