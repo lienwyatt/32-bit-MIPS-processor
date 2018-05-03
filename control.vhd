@@ -35,9 +35,9 @@ port(
 clk: in std_logic;
 branch: in std_logic;
 IR2, IR3, IR4, IR5 : in std_logic_vector(31 downto 0);
-LoadSel, Rselect, RegWrite, Asel, readWrite: out std_logic;
+LoadSel, RegWrite, Asel, readWrite: out std_logic;
 PCsel: out std_logic_vector(2 downto 0);
-Bsel: out std_logic_vector(1 downto 0)
+Bsel, Rselect: out std_logic_vector(1 downto 0)
 );
 end control;
 
@@ -142,8 +142,9 @@ Asel<=achoose;
 	'0' when others; -- Need to add other opcodes
 	
 	with opcode5 select Rselect <= 
-	'1' when "000000",
-	'0' when others; --add in other opcodes
+	"01" when "000000",
+	"10" when "000100" | "000101",
+	"00" when others; --add in other opcodes
 	
 	with opcode5 select RegWrite <=
 	   '1' when "000000"|"001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111"|"100011",
