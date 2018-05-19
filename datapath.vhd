@@ -39,7 +39,7 @@ entity Datapath is
     DB2: out std_logic_vector(31 downto 0);
     DB3: in std_logic_vector(31 downto 0);
 	 memWrite: out std_logic;
-	 reset: std_logic; -- used for resetting pc to first address
+	 reset:in std_logic; -- used for resetting pc to first address
     clock: in std_logic);
 end Datapath;
 
