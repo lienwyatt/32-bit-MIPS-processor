@@ -151,7 +151,7 @@ Asel<=achoose;
 	   '0' when others;
 		
 	with opcode4 select readWrite <=
-	'1' when "101000",
+	'1' when "101011",
 	'0' when others;
 	
 	end Behavioral;
