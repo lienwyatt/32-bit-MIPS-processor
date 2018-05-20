@@ -59,7 +59,8 @@ PORT(
       clk    : IN    STD_LOGIC;--clock
       btnD    : IN    STD_LOGIC; --left bits/right bits
       btnU    : IN    STD_LOGIC; --reset
-      led    : OUT    STD_LOGIC_VECTOR(15 DOWNTO 0)
+      led    : OUT    STD_LOGIC_VECTOR(15 DOWNTO 0);
+		sw : in std_logic_vector(15 downto 0) := "0000000000000000"
 );
 END CPU;
  
@@ -84,6 +85,8 @@ ARCHITECTURE behavioral OF CPU IS
         port(
         ab1: in std_logic_vector(31 downto 0); -- pc (address of instruction)
         ib1: out std_logic_vector(31 downto 0); -- instruction fetched from memory
+		  
+		  switches: in std_logic_vector(15 downto 0); 
     
         ab2: in std_logic_vector(31 downto 0); --  address of data (to be fetched or written to)
         db2: in std_logic_vector(31 downto 0); -- carries the data to be written to memory
@@ -130,6 +133,7 @@ reset<=btnU;
     memory: memory_unit PORT MAP(
     ab1 => AB1,
     ib1 => IB1sig,
+	 switches => sw,
     ab2 => AB2,
     db2 => DB2,
     db3 => DB3,
