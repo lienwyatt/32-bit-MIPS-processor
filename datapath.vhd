@@ -194,10 +194,12 @@ pc_count <= PC + "00000000000000000000000000000100";
 
 with PCsel select mux1<= 
 pc_count when "001", 
-TA4 when "010",      
+--jump to address
+TA4 when "010",
+--branch      
 PC(31 downto 28) & IR4(25 downto 0) & "00" when "011",
 pc_count when others;
-TA(31 downto 2)<=IMM3(29 downto 0);--pc = imm x 4
+TA(31 downto 2)<=(IMM3(29 downto 0) - "10");--pc = imm x 4
 TA(1 downto 0)<= "00";
 process(clock, reset)
 begin
