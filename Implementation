@@ -60,7 +60,7 @@ PORT(
       btnD    : IN    STD_LOGIC; --left bits/right bits
       btnU    : IN    STD_LOGIC; --reset
       led    : OUT    STD_LOGIC_VECTOR(15 DOWNTO 0);
-		sw : in std_logic_vector(15 downto 0) := "0000000000000000"
+		sw : in std_logic_vector(15 downto 0) := "1111111111111111"
 );
 END CPU;
  
