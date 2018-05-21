@@ -1,34 +1,12 @@
--- Company: 
--- Engineer: 
--- 
--- Create Date:    13:24:20 03/08/2018 
--- Design Name: 
--- Module Name:    control - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+----------------------------------------------------------------------------------
+-- Control unit
 --
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
+--sends control signals based on opcodes out to different parts of the processor
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
 use ieee.std_logic_unsigned.all;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity control is
 port(
@@ -42,12 +20,13 @@ Bsel, Rselect: out std_logic_vector(1 downto 0)
 end control;
 
 architecture Behavioral of control is
-	signal opcode2, opcode3, opcode4, opcode5: std_logic_vector(5 downto 0);
-	signal funct2, funct3, funct4, funct5: std_logic_vector(5 downto 0);
+	signal opcode2, opcode3, opcode4, opcode5: std_logic_vector(5 downto 0); --opcodes in each stage
+	signal funct2, funct3, funct4, funct5: std_logic_vector(5 downto 0); --function bits for each stage
 	signal concat3, concat4: std_logic_vector(11 downto 0);
 	signal opResult1, opResult2, functResult, opAndfunct, opOrFunct, storet, stored, bchoose,B, achoose: std_logic;
 
 	begin
+	--sets control signals based on values in the instruction registers
 	opcode2 <= IR2(31 downto 26);
 	opcode3 <= IR3(31 downto 26);
 	opcode4 <= IR4(31 downto 26);
@@ -60,22 +39,16 @@ architecture Behavioral of control is
 	process(clk, IR4)
 	begin
 		---IF
-		
+		--PCsel is the select for mux1 in the datapath
+		-- determines what the next value of PC will be
 		case opcode4 is
-		--when "000000" =>
-		--if (funct4 = "101000")  then--RIGHT?
-		--	PCsel <="000";
-		--elsif (funct4 = "101001") then--RIGHT?
-		--	PCsel<="000";
-	    when "000010"=>
+	   when "000010"=>
             PCsel<="011";--jump
-		--when "000001"|"000011"|"000100"|"000101"|"000111"|"001000"=>--branch
-			--PCsel <="010";
 		when "111111"=>
 		PCsel<="001"; --noop
-		when "000001"|"000100"|"000101"=>--BLTZ, beq, bne
+		when "000001"|"000100"|"000101"|"000110"|"000111"=>--branch instructions
 		     if (branch='1') then
-		         PCsel<="010";
+		         PCsel<="010"; --only branches if the branch condition was met
 		     else 
 		         PCsel<="001";
 		     end if;
@@ -83,28 +56,10 @@ architecture Behavioral of control is
 		PCsel <="001";--increase pc by 4
 		end case;
 	end process;
-		-----ID
-		----EX
---		case opcode3 is
---			when "001000" | "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111" =>
---			Bsel <= '0';
---			when "000000" => 
---			Bsel<= '1';
---			when others =>
---		end case;
-		----MEM
-		----WB
---		case opcode5 is
---			when "000000" =>
---			LoadSel<= '1';
---			Rselect <= '1';
---			when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111" =>
---			LoadSel<= '1';
---			Rselect <='0';
---			when others =>
---		end case;
---	end process;
+	
 concat4<=opcode4&funct4;
+
+--selects depending on if data needs to be forwarded to either the A or B input of the ALU
 process(IR4, IR3, storet, stored)
 begin
     if ((IR4(20 downto 16)=IR3(20 downto 16) AND storet='1')OR(IR4(15 downto 11)=IR3(20 downto 16) AND stored='1')) then bchoose<='1';
@@ -124,32 +79,33 @@ begin
 end process;
 
 Asel<=achoose;
---check opcodes
+
+-- determines if the last operation stored using rd
 	with concat4 select stored<=
 	'1' when "000000100000" | "000000100001" | "000000100100" | "000000100101" | "000000000000" | "000000000100" | "000000101010" | "000000101011" | "000000000011" | "000000000010" | "000000000110" | "000000100011" | "000000100110",
 	'0' when others;
---check opcodes
+-- determines if the last operation stored using rt
 	with opcode4  select storet<=
 	'1' when "001001" | "001100" | "100000" | "100011" | "001101" | "011010" | "001011" | "001110" |"010000",
     '0' when others;
-	
+-- select for which B value we are using for the given opcode
 	with opcode3 select B<=
 	'0' when "001000"| "001001" |"001010" |"001011" | "001100" | "001101" | "001110" | "001111" | "100011" | "101011",--options that use immediates
-	'1' when others; -- need to add all of the other opcodes
-
+	'1' when others; 
+-- select for determining what data is being written into the GPRs
 	with opcode5 select LoadSel <=
 	'1' when "001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111"| "000000",
-	'0' when others; -- Need to add other opcodes
-	
+	'0' when others; 
+--	select for determining whether we are writing using Rs or Rt
 	with opcode5 select Rselect <= 
 	"01" when "000000",
 	"10" when "000100" | "000101",
-	"00" when others; --add in other opcodes
-	
+	"00" when others; 
+--	select for writing to the GPRs
 	with opcode5 select RegWrite <=
 	   '1' when "000000"|"001000" | "001001" |"001010" |"001011" | "001100" |"001101" | "001110" | "001111"|"100011",
 	   '0' when others;
-		
+-- used for whether we are writing to memory or not
 	with opcode4 select readWrite <=
 	'1' when "101011",
 	'0' when others;
