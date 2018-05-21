@@ -6,8 +6,8 @@ Wyatt Lien, Fahim Ghani, Jesse Coma, and Sundeep Kaler
 file hierarchy:  
 
 impmlementation  
----datapath  
--------gpr  
--------control_unit  
--------ALU  
----memory_unit  
+---datapath.vhd  
+-------gpr.vhd  
+-------control  
+-------ALU.vhd  
+---memory_unit.vhd  
