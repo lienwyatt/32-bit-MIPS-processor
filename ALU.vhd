@@ -45,9 +45,6 @@ branch: out std_logic
 end ALU;
 
 architecture Behavioral of ALU is
---signal initial_Output_unsigned: unsigned(32 downto 0);
---signal Asigned, Bsigned: signed(31 downto 0); 
---signal Aunsigned, Bunsigned: unsigned(31 downto 0);
 signal offset: std_logic_vector(4 downto 0);
 signal opcode: std_logic_vector(5 downto 0);
 signal funct: std_logic_vector(5 downto 0);
@@ -66,12 +63,12 @@ Aunsigned <= '0' & inputA;
 Bunsigned <= '0' & inputB;
 Asigned <= '0' & inputA;
 Bsigned <= '0' & inputB;
-
+-- determines what instruction is being run based on its opcode
 process(opcode, Aunsigned, Asigned, Bsigned, Bunsigned, funct, offset)
 begin
 	case opcode is
 		when "000000" => -- arithmetic operations (opcode = 00)
-			case funct is
+			case funct is --in the case the opcode is 000000, funct bits are used to determine the instruction
 				when "100000" =>  --(signed addition)			
 					output_sig <= std_logic_vector(signed(Asigned) + signed(Bsigned));
 					 if Asigned(31) /= Bsigned(31) then -- adding a positive and negative number, cant have overflow
@@ -153,6 +150,7 @@ begin
 							  output_sig<= "000000000000000000000000000000000";
 					 end if;
 				when "000000"=>--(shift left logical)
+				--left unsigned shift using an immediate value
 					case offset is
 						when "00000" => output_sig<= Bunsigned;
 						when "00001" => output_sig<= Bunsigned(31 downto 0) & "0";
@@ -190,8 +188,45 @@ begin
 					end case;
 
 				when "000001"=>--(shift left arithmetic)
-				
+				--left signed shift using an immediate value
+						case offset is
+						when "00000" => output_sig<= Bunsigned;
+						when "00001" => output_sig<= Bunsigned(31 downto 0) & "0";
+						when "00010" => output_sig<= Bunsigned(30 downto 0) & "00";
+						when "00011" => output_sig<= Bunsigned(29 downto 0) & "000";
+						when "00100" => output_sig<= Bunsigned(28 downto 0) & "0000";
+						when "00101" => output_sig<= Bunsigned(27 downto 0) & "00000";
+						when "00110" => output_sig<= Bunsigned(26 downto 0) & "000000";
+						when "00111" => output_sig<= Bunsigned(25 downto 0) & "0000000";
+						when "01000" => output_sig<= Bunsigned(24 downto 0) & "00000000";
+						when "01001" => output_sig<= Bunsigned(23 downto 0) & "000000000";
+						when "01010" => output_sig<= Bunsigned(22 downto 0) & "0000000000";
+						when "01011" => output_sig<= Bunsigned(21 downto 0) & "00000000000";
+						when "01100" => output_sig<= Bunsigned(20 downto 0) & "000000000000";
+						when "01101" => output_sig<= Bunsigned(19 downto 0) & "0000000000000";
+						when "01110" => output_sig<= Bunsigned(18 downto 0) & "00000000000000";
+						when "01111" => output_sig<= Bunsigned(17 downto 0) & "000000000000000";
+						when "10000" => output_sig<= Bunsigned(16 downto 0) & "0000000000000000";
+						when "10001" => output_sig<= Bunsigned(15 downto 0) & "00000000000000000";
+						when "10010" => output_sig<= Bunsigned(14 downto 0) & "000000000000000000";
+						when "10011" => output_sig<= Bunsigned(13 downto 0) & "0000000000000000000";
+						when "10100" => output_sig<= Bunsigned(12 downto 0) & "00000000000000000000";
+						when "10101" => output_sig<= Bunsigned(11 downto 0) & "000000000000000000000";
+						when "10110" => output_sig<= Bunsigned(10 downto 0) & "0000000000000000000000";
+						when "10111" => output_sig<= Bunsigned(9 downto 0) & "00000000000000000000000";
+						when "11000" => output_sig<= Bunsigned(8 downto 0) & "000000000000000000000000";
+						when "11001" => output_sig<= Bunsigned(7 downto 0) & "0000000000000000000000000";
+						when "11010" => output_sig<= Bunsigned(6 downto 0) & "00000000000000000000000000";
+						when "11011" => output_sig<= Bunsigned(5 downto 0) & "000000000000000000000000000";
+						when "11100" => output_sig<= Bunsigned(4 downto 0) & "0000000000000000000000000000";
+						when "11101" => output_sig<= Bunsigned(3 downto 0) & "00000000000000000000000000000";
+						when "11110" => output_sig<= Bunsigned(2 downto 0) & "000000000000000000000000000000";
+						when "11111" => output_sig<= Bunsigned(1 downto 0) & "0000000000000000000000000000000";
+						when others => 
+					end case;
+					
 				when "000010"=>--(shift right logical)
+				--unsigned right shift using an immediate
 				case offset is
 						when "00000" => output_sig<= Bunsigned;
 						when "00001" => output_sig<= "0" & Bunsigned(32 downto 1);
@@ -225,85 +260,274 @@ begin
 						when "11101" => output_sig<= "00000000000000000000000000000" & Bunsigned(32 downto 29);
 						when "11110" => output_sig<= "000000000000000000000000000000" & Bunsigned(32 downto 30);
 						when "11111" => output_sig<= "0000000000000000000000000000000" & Bunsigned(32 downto 31);
-						when others => 					end case;
+						when others => 					
+						end case;
+						
 				when "000011"=>--(shift right arithmetic)
-				
+				--signed right shift using an immediate
+				if(Bsigned(31) = '0') then --in the case it is positive
+						case offset is
+						when "00000" => output_sig<= Bsigned;
+						when "00001" => output_sig<= "0" & Bsigned(32 downto 1);
+						when "00010" => output_sig<= "00" & Bsigned(32 downto 2);
+						when "00011" => output_sig<= "000" & Bsigned(32 downto 3);
+						when "00100" => output_sig<= "0000" & Bsigned(32 downto 4);
+						when "00101" => output_sig<= "00000" & Bsigned(32 downto 5);
+						when "00110" => output_sig<= "000000" & Bsigned(32 downto 6);
+						when "00111" => output_sig<= "0000000" & Bsigned(32 downto 7);
+						when "01000" => output_sig<= "00000000" & Bsigned(32 downto 8);
+						when "01001" => output_sig<= "000000000" & Bsigned(32 downto 9);
+						when "01010" => output_sig<= "0000000000" & Bsigned(32 downto 10);
+						when "01011" => output_sig<= "00000000000" & Bsigned(32 downto 11);
+						when "01100" => output_sig<= "000000000000" & Bsigned(32 downto 12);
+						when "01101" => output_sig<= "0000000000000" & Bsigned(32 downto 13);
+						when "01110" => output_sig<= "00000000000000" & Bsigned(32 downto 14);
+						when "01111" => output_sig<= "000000000000000" & Bsigned(32 downto 15);
+						when "10000" => output_sig<= "0000000000000000" & Bsigned(32 downto 16);
+						when "10001" => output_sig<= "00000000000000000" & Bsigned(32 downto 17);
+						when "10010" => output_sig<= "000000000000000000" & Bsigned(32 downto 18);
+						when "10011" => output_sig<= "0000000000000000000" & Bsigned(32 downto 19);
+						when "10100" => output_sig<= "00000000000000000000" & Bsigned(32 downto 20);
+						when "10101" => output_sig<= "000000000000000000000" & Bsigned(32 downto 21);
+						when "10110" => output_sig<= "0000000000000000000000" & Bsigned(32 downto 22);
+						when "10111" => output_sig<= "00000000000000000000000" & Bsigned(32 downto 23);
+						when "11000" => output_sig<= "000000000000000000000000" & Bsigned(32 downto 24);
+						when "11001" => output_sig<= "0000000000000000000000000" & Bsigned(32 downto 25);
+						when "11010" => output_sig<= "00000000000000000000000000" & Bsigned(32 downto 26);
+						when "11011" => output_sig<= "000000000000000000000000000" & Bsigned(32 downto 27);
+						when "11100" => output_sig<= "0000000000000000000000000000" & Bsigned(32 downto 28);
+						when "11101" => output_sig<= "00000000000000000000000000000" & Bsigned(32 downto 29);
+						when "11110" => output_sig<= "000000000000000000000000000000" & Bsigned(32 downto 30);
+						when "11111" => output_sig<= "0000000000000000000000000000000" & Bsigned(32 downto 31);
+						when others => 						
+						end case;
+				else -- in the case that it is negative
+						case offset is
+						when "00000" => output_sig<= Bsigned;
+						when "00001" => output_sig<= "1" & Bsigned(32 downto 1);
+						when "00010" => output_sig<= "11" & Bsigned(32 downto 2);
+						when "00011" => output_sig<= "111" & Bsigned(32 downto 3);
+						when "00100" => output_sig<= "1111" & Bsigned(32 downto 4);
+						when "00101" => output_sig<= "11111" & Bsigned(32 downto 5);
+						when "00110" => output_sig<= "111111" & Bsigned(32 downto 6);
+						when "00111" => output_sig<= "1111111" & Bsigned(32 downto 7);
+						when "01000" => output_sig<= "11111111" & Bsigned(32 downto 8);
+						when "01001" => output_sig<= "111111111" & Bsigned(32 downto 9);
+						when "01010" => output_sig<= "1111111111" & Bsigned(32 downto 10);
+						when "01011" => output_sig<= "11111111111" & Bsigned(32 downto 11);
+						when "01100" => output_sig<= "111111111111" & Bsigned(32 downto 12);
+						when "01101" => output_sig<= "1111111111111" & Bsigned(32 downto 13);
+						when "01110" => output_sig<= "11111111111111" & Bsigned(32 downto 14);
+						when "01111" => output_sig<= "111111111111111" & Bsigned(32 downto 15);
+						when "10000" => output_sig<= "1111111111111111" & Bsigned(32 downto 16);
+						when "10001" => output_sig<= "11111111111111111" & Bsigned(32 downto 17);
+						when "10010" => output_sig<= "111111111111111111" & Bsigned(32 downto 18);
+						when "10011" => output_sig<= "1111111111111111111" & Bsigned(32 downto 19);
+						when "10100" => output_sig<= "11111111111111111111" & Bsigned(32 downto 20);
+						when "10101" => output_sig<= "111111111111111111111" & Bsigned(32 downto 21);
+						when "10110" => output_sig<= "1111111111111111111111" & Bsigned(32 downto 22);
+						when "10111" => output_sig<= "11111111111111111111111" & Bsigned(32 downto 23);
+						when "11000" => output_sig<= "111111111111111111111111" & Bsigned(32 downto 24);
+						when "11001" => output_sig<= "1111111111111111111111111" & Bsigned(32 downto 25);
+						when "11010" => output_sig<= "11111111111111111111111111" & Bsigned(32 downto 26);
+						when "11011" => output_sig<= "111111111111111111111111111" & Bsigned(32 downto 27);
+						when "11100" => output_sig<= "1111111111111111111111111111" & Bsigned(32 downto 28);
+						when "11101" => output_sig<= "11111111111111111111111111111" & Bsigned(32 downto 29);
+						when "11110" => output_sig<= "111111111111111111111111111111" & Bsigned(32 downto 30);
+						when "11111" => output_sig<= "1111111111111111111111111111111" & Bsigned(32 downto 31);
+						when others => 						
+						end case;
+				end if;
+						
 				when "000100"=> --(shift left logical variable)
---				 case Aunsigned is
---						when "00000" => output_sig<= Bunsigned;
---						when "00001" => output_sig<= Bunsigned(31 downto 0) & "0";
---						when "00010" => output_sig<= Bunsigned(30 downto 0) & "00";
---						when "00011" => output_sig<= Bunsigned(29 downto 0) & "000";
---						when "00100" => output_sig<= Bunsigned(28 downto 0) & "0000";
---						when "00101" => output_sig<= Bunsigned(27 downto 0) & "00000";
---						when "00110" => output_sig<= Bunsigned(26 downto 0) & "000000";
---						when "00111" => output_sig<= Bunsigned(25 downto 0) & "0000000";
---						when "01000" => output_sig<= Bunsigned(24 downto 0) & "00000000";
---						when "01001" => output_sig<= Bunsigned(23 downto 0) & "000000000";
---						when "01010" => output_sig<= Bunsigned(22 downto 0) & "0000000000";
---						when "01011" => output_sig<= Bunsigned(21 downto 0) & "00000000000";
---						when "01100" => output_sig<= Bunsigned(20 downto 0) & "000000000000";
---						when "01101" => output_sig<= Bunsigned(19 downto 0) & "0000000000000";
---						when "01110" => output_sig<= Bunsigned(18 downto 0) & "00000000000000";
---						when "01111" => output_sig<= Bunsigned(17 downto 0) & "000000000000000";
---						when "10000" => output_sig<= Bunsigned(16 downto 0) & "0000000000000000";
---						when "10001" => output_sig<= Bunsigned(15 downto 0) & "00000000000000000";
---						when "10010" => output_sig<= Bunsigned(14 downto 0) & "000000000000000000";
---						when "10011" => output_sig<= Bunsigned(13 downto 0) & "0000000000000000000";
---						when "10100" => output_sig<= Bunsigned(12 downto 0) & "00000000000000000000";
---						when "10101" => output_sig<= Bunsigned(11 downto 0) & "000000000000000000000";
---						when "10110" => output_sig<= Bunsigned(10 downto 0) & "0000000000000000000000";
---						when "10111" => output_sig<= Bunsigned(9 downto 0) & "00000000000000000000000";
---						when "11000" => output_sig<= Bunsigned(8 downto 0) & "000000000000000000000000";
---						when "11001" => output_sig<= Bunsigned(7 downto 0) & "0000000000000000000000000";
---						when "11010" => output_sig<= Bunsigned(6 downto 0) & "00000000000000000000000000";
---						when "11011" => output_sig<= Bunsigned(5 downto 0) & "000000000000000000000000000";
---						when "11100" => output_sig<= Bunsigned(4 downto 0) & "0000000000000000000000000000";
---						when "11101" => output_sig<= Bunsigned(3 downto 0) & "00000000000000000000000000000";
---						when "11110" => output_sig<= Bunsigned(2 downto 0) & "000000000000000000000000000000";
---						when "11111" => output_sig<= Bunsigned(1 downto 0) & "0000000000000000000000000000000";
---						when others => 
---					end case;
-				when "000101"=> --(shift left arithmetic variable)
-				
-				when "000110"=> --(shift right logical variable)
---				case offset is
---						when "00000" => output_sig<= Bunsigned;
---						when "00001" => output_sig<= "0" & Bunsigned(32 downto 1);
---						when "00010" => output_sig<= "00" & Bunsigned(32 downto 1);
---						when "00011" => output_sig<= "000" & Bunsigned(32 downto 1);
---						when "00100" => output_sig<= "0000" & Bunsigned(32 downto 1);
---						when "00101" => output_sig<= "00000" & Bunsigned(32 downto 1);
---						when "00110" => output_sig<= "000000" & Bunsigned(32 downto 1);
---						when "00111" => output_sig<= "0000000" & Bunsigned(32 downto 1);
---						when "01000" => output_sig<= "00000000" & Bunsigned(32 downto 1);
---						when "01001" => output_sig<= "000000000" & Bunsigned(32 downto 1);
---						when "01010" => output_sig<= "0000000000" & Bunsigned(32 downto 1);
---						when "01011" => output_sig<= "00000000000" & Bunsigned(32 downto 1);
---						when "01100" => output_sig<= "000000000000" & Bunsigned(32 downto 1);
---						when "01101" => output_sig<= "0000000000000" & Bunsigned(32 downto 1);
---						when "01110" => output_sig<= "00000000000000" & Bunsigned(32 downto 1);
---						when "01111" => output_sig<= "000000000000000" & Bunsigned(32 downto 1);
---						when "10000" => output_sig<= "0000000000000000" & Bunsigned(32 downto 1);
---						when "10001" => output_sig<= "00000000000000000" & Bunsigned(32 downto 1);
---						when "10010" => output_sig<= "000000000000000000" & Bunsigned(32 downto 1);
---						when "10011" => output_sig<= "0000000000000000000" & Bunsigned(32 downto 1);
---						when "10100" => output_sig<= "00000000000000000000" & Bunsigned(32 downto 1);
---						when "10101" => output_sig<= "000000000000000000000" & Bunsigned(32 downto 1);
---						when "10110" => output_sig<= "0000000000000000000000" & Bunsigned(32 downto 1);
---						when "10111" => output_sig<= "00000000000000000000000" & Bunsigned(32 downto 1);
---						when "11000" => output_sig<= "000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11001" => output_sig<= "0000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11010" => output_sig<= "00000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11011" => output_sig<= "000000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11100" => output_sig<= "0000000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11101" => output_sig<= "00000000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11110" => output_sig<= "000000000000000000000000000000" & Bunsigned(32 downto 1);
---						when "11111" => output_sig<= "0000000000000000000000000000000" & Bunsigned(32 downto 1);
---						when others => 
---					end case;
-				when "000111"=> --(shift right arithmetic variable)
+				--unsigned left shift based on the value in a register
+				 case Aunsigned(4 downto 0) is
+						when "00000" => output_sig<= Bunsigned;
+						when "00001" => output_sig<= Bunsigned(31 downto 0) & "0";
+						when "00010" => output_sig<= Bunsigned(30 downto 0) & "00";
+						when "00011" => output_sig<= Bunsigned(29 downto 0) & "000";
+						when "00100" => output_sig<= Bunsigned(28 downto 0) & "0000";
+						when "00101" => output_sig<= Bunsigned(27 downto 0) & "00000";
+						when "00110" => output_sig<= Bunsigned(26 downto 0) & "000000";
+						when "00111" => output_sig<= Bunsigned(25 downto 0) & "0000000";
+						when "01000" => output_sig<= Bunsigned(24 downto 0) & "00000000";
+						when "01001" => output_sig<= Bunsigned(23 downto 0) & "000000000";
+						when "01010" => output_sig<= Bunsigned(22 downto 0) & "0000000000";
+						when "01011" => output_sig<= Bunsigned(21 downto 0) & "00000000000";
+						when "01100" => output_sig<= Bunsigned(20 downto 0) & "000000000000";
+						when "01101" => output_sig<= Bunsigned(19 downto 0) & "0000000000000";
+						when "01110" => output_sig<= Bunsigned(18 downto 0) & "00000000000000";
+						when "01111" => output_sig<= Bunsigned(17 downto 0) & "000000000000000";
+						when "10000" => output_sig<= Bunsigned(16 downto 0) & "0000000000000000";
+						when "10001" => output_sig<= Bunsigned(15 downto 0) & "00000000000000000";
+						when "10010" => output_sig<= Bunsigned(14 downto 0) & "000000000000000000";
+						when "10011" => output_sig<= Bunsigned(13 downto 0) & "0000000000000000000";
+						when "10100" => output_sig<= Bunsigned(12 downto 0) & "00000000000000000000";
+						when "10101" => output_sig<= Bunsigned(11 downto 0) & "000000000000000000000";
+						when "10110" => output_sig<= Bunsigned(10 downto 0) & "0000000000000000000000";
+						when "10111" => output_sig<= Bunsigned(9 downto 0) & "00000000000000000000000";
+						when "11000" => output_sig<= Bunsigned(8 downto 0) & "000000000000000000000000";
+						when "11001" => output_sig<= Bunsigned(7 downto 0) & "0000000000000000000000000";
+						when "11010" => output_sig<= Bunsigned(6 downto 0) & "00000000000000000000000000";
+						when "11011" => output_sig<= Bunsigned(5 downto 0) & "000000000000000000000000000";
+						when "11100" => output_sig<= Bunsigned(4 downto 0) & "0000000000000000000000000000";
+						when "11101" => output_sig<= Bunsigned(3 downto 0) & "00000000000000000000000000000";
+						when "11110" => output_sig<= Bunsigned(2 downto 0) & "000000000000000000000000000000";
+						when "11111" => output_sig<= Bunsigned(1 downto 0) & "0000000000000000000000000000000";
+						when others => 
+					end case;
 					
+				when "000101"=> --(shift left arithmetic variable)
+				--signed left shift based on the value in a register
+				case Aunsigned(4 downto 0) is
+						when "00000" => output_sig<= Bunsigned;
+						when "00001" => output_sig<= Bunsigned(31 downto 0) & "0";
+						when "00010" => output_sig<= Bunsigned(30 downto 0) & "00";
+						when "00011" => output_sig<= Bunsigned(29 downto 0) & "000";
+						when "00100" => output_sig<= Bunsigned(28 downto 0) & "0000";
+						when "00101" => output_sig<= Bunsigned(27 downto 0) & "00000";
+						when "00110" => output_sig<= Bunsigned(26 downto 0) & "000000";
+						when "00111" => output_sig<= Bunsigned(25 downto 0) & "0000000";
+						when "01000" => output_sig<= Bunsigned(24 downto 0) & "00000000";
+						when "01001" => output_sig<= Bunsigned(23 downto 0) & "000000000";
+						when "01010" => output_sig<= Bunsigned(22 downto 0) & "0000000000";
+						when "01011" => output_sig<= Bunsigned(21 downto 0) & "00000000000";
+						when "01100" => output_sig<= Bunsigned(20 downto 0) & "000000000000";
+						when "01101" => output_sig<= Bunsigned(19 downto 0) & "0000000000000";
+						when "01110" => output_sig<= Bunsigned(18 downto 0) & "00000000000000";
+						when "01111" => output_sig<= Bunsigned(17 downto 0) & "000000000000000";
+						when "10000" => output_sig<= Bunsigned(16 downto 0) & "0000000000000000";
+						when "10001" => output_sig<= Bunsigned(15 downto 0) & "00000000000000000";
+						when "10010" => output_sig<= Bunsigned(14 downto 0) & "000000000000000000";
+						when "10011" => output_sig<= Bunsigned(13 downto 0) & "0000000000000000000";
+						when "10100" => output_sig<= Bunsigned(12 downto 0) & "00000000000000000000";
+						when "10101" => output_sig<= Bunsigned(11 downto 0) & "000000000000000000000";
+						when "10110" => output_sig<= Bunsigned(10 downto 0) & "0000000000000000000000";
+						when "10111" => output_sig<= Bunsigned(9 downto 0) & "00000000000000000000000";
+						when "11000" => output_sig<= Bunsigned(8 downto 0) & "000000000000000000000000";
+						when "11001" => output_sig<= Bunsigned(7 downto 0) & "0000000000000000000000000";
+						when "11010" => output_sig<= Bunsigned(6 downto 0) & "00000000000000000000000000";
+						when "11011" => output_sig<= Bunsigned(5 downto 0) & "000000000000000000000000000";
+						when "11100" => output_sig<= Bunsigned(4 downto 0) & "0000000000000000000000000000";
+						when "11101" => output_sig<= Bunsigned(3 downto 0) & "00000000000000000000000000000";
+						when "11110" => output_sig<= Bunsigned(2 downto 0) & "000000000000000000000000000000";
+						when "11111" => output_sig<= Bunsigned(1 downto 0) & "0000000000000000000000000000000";
+						when others => 
+					end case;
+					
+				when "000110"=> --(shift right logical variable)
+				--unsigned right shift based on the value in a register
+				case Aunsigned(4 downto 0) is
+						when "00000" => output_sig<= Bunsigned;
+						when "00001" => output_sig<= "0" & Bunsigned(32 downto 1);
+						when "00010" => output_sig<= "00" & Bunsigned(32 downto 2);
+						when "00011" => output_sig<= "000" & Bunsigned(32 downto 3);
+						when "00100" => output_sig<= "0000" & Bunsigned(32 downto 4);
+						when "00101" => output_sig<= "00000" & Bunsigned(32 downto 5);
+						when "00110" => output_sig<= "000000" & Bunsigned(32 downto 6);
+						when "00111" => output_sig<= "0000000" & Bunsigned(32 downto 7);
+						when "01000" => output_sig<= "00000000" & Bunsigned(32 downto 8);
+						when "01001" => output_sig<= "000000000" & Bunsigned(32 downto 9);
+						when "01010" => output_sig<= "0000000000" & Bunsigned(32 downto 10);
+						when "01011" => output_sig<= "00000000000" & Bunsigned(32 downto 11);
+						when "01100" => output_sig<= "000000000000" & Bunsigned(32 downto 12);
+						when "01101" => output_sig<= "0000000000000" & Bunsigned(32 downto 13);
+						when "01110" => output_sig<= "00000000000000" & Bunsigned(32 downto 14);
+						when "01111" => output_sig<= "000000000000000" & Bunsigned(32 downto 15);
+						when "10000" => output_sig<= "0000000000000000" & Bunsigned(32 downto 16);
+						when "10001" => output_sig<= "00000000000000000" & Bunsigned(32 downto 17);
+						when "10010" => output_sig<= "000000000000000000" & Bunsigned(32 downto 18);
+						when "10011" => output_sig<= "0000000000000000000" & Bunsigned(32 downto 19);
+						when "10100" => output_sig<= "00000000000000000000" & Bunsigned(32 downto 20);
+						when "10101" => output_sig<= "000000000000000000000" & Bunsigned(32 downto 21);
+						when "10110" => output_sig<= "0000000000000000000000" & Bunsigned(32 downto 22);
+						when "10111" => output_sig<= "00000000000000000000000" & Bunsigned(32 downto 23);
+						when "11000" => output_sig<= "000000000000000000000000" & Bunsigned(32 downto 24);
+						when "11001" => output_sig<= "0000000000000000000000000" & Bunsigned(32 downto 25);
+						when "11010" => output_sig<= "00000000000000000000000000" & Bunsigned(32 downto 26);
+						when "11011" => output_sig<= "000000000000000000000000000" & Bunsigned(32 downto 27);
+						when "11100" => output_sig<= "0000000000000000000000000000" & Bunsigned(32 downto 28);
+						when "11101" => output_sig<= "00000000000000000000000000000" & Bunsigned(32 downto 29);
+						when "11110" => output_sig<= "000000000000000000000000000000" & Bunsigned(32 downto 30);
+						when "11111" => output_sig<= "0000000000000000000000000000000" & Bunsigned(32 downto 31);
+						when others => 					
+						end case;
+						
+				when "000111"=> --(shift right arithmetic variable)
+				--signed right shift based on the value in a register
+						if(Bsigned(31) = '0') then --in the case that the value is poisitive
+						case Aunsigned(4 downto 0) is
+						when "00000" => output_sig<= Bsigned;
+						when "00001" => output_sig<= "0" & Bsigned(32 downto 1);
+						when "00010" => output_sig<= "00" & Bsigned(32 downto 2);
+						when "00011" => output_sig<= "000" & Bsigned(32 downto 3);
+						when "00100" => output_sig<= "0000" & Bsigned(32 downto 4);
+						when "00101" => output_sig<= "00000" & Bsigned(32 downto 5);
+						when "00110" => output_sig<= "000000" & Bsigned(32 downto 6);
+						when "00111" => output_sig<= "0000000" & Bsigned(32 downto 7);
+						when "01000" => output_sig<= "00000000" & Bsigned(32 downto 8);
+						when "01001" => output_sig<= "000000000" & Bsigned(32 downto 9);
+						when "01010" => output_sig<= "0000000000" & Bsigned(32 downto 10);
+						when "01011" => output_sig<= "00000000000" & Bsigned(32 downto 11);
+						when "01100" => output_sig<= "000000000000" & Bsigned(32 downto 12);
+						when "01101" => output_sig<= "0000000000000" & Bsigned(32 downto 13);
+						when "01110" => output_sig<= "00000000000000" & Bsigned(32 downto 14);
+						when "01111" => output_sig<= "000000000000000" & Bsigned(32 downto 15);
+						when "10000" => output_sig<= "0000000000000000" & Bsigned(32 downto 16);
+						when "10001" => output_sig<= "00000000000000000" & Bsigned(32 downto 17);
+						when "10010" => output_sig<= "000000000000000000" & Bsigned(32 downto 18);
+						when "10011" => output_sig<= "0000000000000000000" & Bsigned(32 downto 19);
+						when "10100" => output_sig<= "00000000000000000000" & Bsigned(32 downto 20);
+						when "10101" => output_sig<= "000000000000000000000" & Bsigned(32 downto 21);
+						when "10110" => output_sig<= "0000000000000000000000" & Bsigned(32 downto 22);
+						when "10111" => output_sig<= "00000000000000000000000" & Bsigned(32 downto 23);
+						when "11000" => output_sig<= "000000000000000000000000" & Bsigned(32 downto 24);
+						when "11001" => output_sig<= "0000000000000000000000000" & Bsigned(32 downto 25);
+						when "11010" => output_sig<= "00000000000000000000000000" & Bsigned(32 downto 26);
+						when "11011" => output_sig<= "000000000000000000000000000" & Bsigned(32 downto 27);
+						when "11100" => output_sig<= "0000000000000000000000000000" & Bsigned(32 downto 28);
+						when "11101" => output_sig<= "00000000000000000000000000000" & Bsigned(32 downto 29);
+						when "11110" => output_sig<= "000000000000000000000000000000" & Bsigned(32 downto 30);
+						when "11111" => output_sig<= "0000000000000000000000000000000" & Bsigned(32 downto 31);
+						when others => 						
+						end case;
+				else -- in the case that the value is negative
+						case Aunsigned(4 downto 0) is
+						when "00000" => output_sig<= Bsigned;
+						when "00001" => output_sig<= "1" & Bsigned(32 downto 1);
+						when "00010" => output_sig<= "11" & Bsigned(32 downto 2);
+						when "00011" => output_sig<= "111" & Bsigned(32 downto 3);
+						when "00100" => output_sig<= "1111" & Bsigned(32 downto 4);
+						when "00101" => output_sig<= "11111" & Bsigned(32 downto 5);
+						when "00110" => output_sig<= "111111" & Bsigned(32 downto 6);
+						when "00111" => output_sig<= "1111111" & Bsigned(32 downto 7);
+						when "01000" => output_sig<= "11111111" & Bsigned(32 downto 8);
+						when "01001" => output_sig<= "111111111" & Bsigned(32 downto 9);
+						when "01010" => output_sig<= "1111111111" & Bsigned(32 downto 10);
+						when "01011" => output_sig<= "11111111111" & Bsigned(32 downto 11);
+						when "01100" => output_sig<= "111111111111" & Bsigned(32 downto 12);
+						when "01101" => output_sig<= "1111111111111" & Bsigned(32 downto 13);
+						when "01110" => output_sig<= "11111111111111" & Bsigned(32 downto 14);
+						when "01111" => output_sig<= "111111111111111" & Bsigned(32 downto 15);
+						when "10000" => output_sig<= "1111111111111111" & Bsigned(32 downto 16);
+						when "10001" => output_sig<= "11111111111111111" & Bsigned(32 downto 17);
+						when "10010" => output_sig<= "111111111111111111" & Bsigned(32 downto 18);
+						when "10011" => output_sig<= "1111111111111111111" & Bsigned(32 downto 19);
+						when "10100" => output_sig<= "11111111111111111111" & Bsigned(32 downto 20);
+						when "10101" => output_sig<= "111111111111111111111" & Bsigned(32 downto 21);
+						when "10110" => output_sig<= "1111111111111111111111" & Bsigned(32 downto 22);
+						when "10111" => output_sig<= "11111111111111111111111" & Bsigned(32 downto 23);
+						when "11000" => output_sig<= "111111111111111111111111" & Bsigned(32 downto 24);
+						when "11001" => output_sig<= "1111111111111111111111111" & Bsigned(32 downto 25);
+						when "11010" => output_sig<= "11111111111111111111111111" & Bsigned(32 downto 26);
+						when "11011" => output_sig<= "111111111111111111111111111" & Bsigned(32 downto 27);
+						when "11100" => output_sig<= "1111111111111111111111111111" & Bsigned(32 downto 28);
+						when "11101" => output_sig<= "11111111111111111111111111111" & Bsigned(32 downto 29);
+						when "11110" => output_sig<= "111111111111111111111111111111" & Bsigned(32 downto 30);
+						when "11111" => output_sig<= "1111111111111111111111111111111" & Bsigned(32 downto 31);
+						when others => 						
+						end case;
+				end if;
 				when others =>
 				
 			 end case; -- opcodes are no longer x00
@@ -319,6 +543,7 @@ begin
 						overflow<= '0';
 					end if;
 				end if;
+				
 		 when "001001"=> --(add immediate unsigned)
 			 output_sig <= std_logic_vector(unsigned(Aunsigned) + unsigned(Bunsigned));
 			 if(output_sig(32) = '1') then
@@ -345,7 +570,8 @@ begin
 						end if;
 					end if;
 				end if;
-				-------------------------------------------------------------BRANCH STUFF
+				
+				--Branches
 	     when "000100"=>--BEQ
 	          if (inputA=inputB) then
 	              branch<='1';
@@ -365,7 +591,21 @@ begin
 	         else 
 	            branch<='0';
 	         end if;
-	     
+		
+			when "000110"=> --branch on less than or equal to zero
+			  if (inputA(31)='1' or inputA(31 downto 0)="00000000000000000000000000000000") then--if the signed number is negative
+	            branch<='1';
+	         else 
+	            branch<='0';
+	         end if;
+				
+			when "000111"=> -- branch on greater than zero
+			if (inputA(31)='0' and inputA(31 downto 0)/= "00000000000000000000000000000000") then
+					branch<='1';
+	         else 
+	            branch<='0';
+	         end if;
+				     
 		 when "001011"=> --(set on less than immediate unsigned)
 			 if(Aunsigned < Bunsigned) then
 				output_sig<= "000000000000000000000000000000001";
@@ -405,11 +645,6 @@ begin
 		when others =>
 	end case;
 end process;
-
---process(output_sig)
---begin
- --   if (output_sig = "000000000000000000000000000000000") then zero <= '1';
-   -- end if;
 
 --end process;
 	 	output<=output_sig(31 downto 0);				
