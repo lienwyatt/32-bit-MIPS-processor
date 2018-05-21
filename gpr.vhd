@@ -1,35 +1,11 @@
 -----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 02/22/2018 01:30:10 PM
--- Design Name: 
--- Module Name: register file - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
+-- GPR
+-- contains all 32 general purpose registers that can be written to as well as read
 ----------------------------------------------------------------------------------
 
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity registerfile is
     port(
@@ -46,7 +22,7 @@ entity registerfile is
 --  Port ( );
 end registerfile;
 
-architecture Behavioral of registerfile is
+architecture Behavioral of registerfile is --contains 32 registers
     signal R0 : std_logic_vector(31 downto 0);
     signal R1 : std_logic_vector(31 downto 0);
     signal R2 : std_logic_vector(31 downto 0);
@@ -80,11 +56,12 @@ architecture Behavioral of registerfile is
     signal R30 : std_logic_vector(31 downto 0);
     signal R31 : std_logic_vector(31 downto 0);
 begin
+--R0 and R1 are constant values
 R0<="00000000000000000000000000000000";
 R1<="00000000000000000000000000000001";
 process(readreg1, readreg2, regwrite)
 begin
-
+--gets the value for the A input for the ALU
 case readreg1 is 
     when "00000"=> A<=R0;
     when "00001"=> A<=R1;
@@ -120,7 +97,7 @@ case readreg1 is
     when "11111"=> A<=R31;
     when others =>
 end case;
-
+-- gets the value for the B input of the ALU
 case readreg2 is 
         when "00000"=> B<=R0;
         when "00001"=> B<=R1;
@@ -157,8 +134,10 @@ case readreg2 is
         when others =>
     end case;
 end process;
+
 process(writereg, regwrite, writedata, clk)
 begin 
+--synchronous write to the GPRs
 if (regwrite='1' and clk' event and clk='1') then
 case writereg is 
     when "00010"=> R2<=writedata;
