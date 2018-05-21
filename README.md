@@ -5,7 +5,7 @@ Wyatt Lien, Fahim Ghani, Jesse Coma, and Sundeep Kaler
 
 file hierarchy:  
 
-impmlementation
+impmlementation  
 ---datapath  
 -------gpr  
 -------control_unit  
