@@ -1,34 +1,10 @@
 --------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 03/02/2018 02:36:25 PM
--- Design Name: 
--- Module Name: Datapath - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
+-- Data Path
+-- connects the GPR, ALU and control unit together
 ----------------------------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_UNSIGNED.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity Datapath is
 
@@ -44,24 +20,34 @@ entity Datapath is
 end Datapath;
 
 architecture Behavioral of Datapath is
-    signal NPC2: std_logic_vector(31 downto 0);--registers
-    signal NPC3: std_logic_vector(31 downto 0);
-    signal TA4: std_logic_vector(31 downto 0);
-    signal TA: std_logic_vector(31 downto 0);
-    signal A3: std_logic_vector(31 downto 0);
-    signal B3: std_logic_vector(31 downto 0);
+    signal NPC2: std_logic_vector(31 downto 0);--PC2 register
+    signal NPC3: std_logic_vector(31 downto 0);--PC3 register
+	 
+    signal TA4: std_logic_vector(31 downto 0);-- used for branches
+	 
+    signal TA: std_logic_vector(31 downto 0);-- used for calculating branches
+	 
+    signal A3: std_logic_vector(31 downto 0);--holds the value for A
+	 
+    signal B3: std_logic_vector(31 downto 0);--holds the value of B
     signal B4: std_logic_vector(31 downto 0);
-    signal IMM3: std_logic_vector(31 downto 0);
-    signal IR2: std_logic_vector(31 downto 0);
+	 
+    signal IMM3: std_logic_vector(31 downto 0);--hold the immediate value
+	 
+    signal IR2: std_logic_vector(31 downto 0); --instruction registers
     signal IR3: std_logic_vector(31 downto 0);
     signal IR4: std_logic_vector(31 downto 0);
     signal IR5: std_logic_vector(31 downto 0);
-    signal ALU4: std_logic_vector(31 downto 0);
+	 
+    signal ALU4: std_logic_vector(31 downto 0); --alu output
     signal ALU5: std_logic_vector(31 downto 0);
-    signal MDR5: std_logic_vector(31 downto 0);
-    signal PC: std_logic_vector(31 downto 0);
+	 
+	 signal PC: std_logic_vector(31 downto 0);
+	 
+    signal MDR5: std_logic_vector(31 downto 0);-- values from muxes and control signals
     signal branch4: std_logic;
     signal readWrite: std_logic;
+	 
     signal pc_count: std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
     
     
@@ -72,6 +58,7 @@ architecture Behavioral of Datapath is
     signal A: std_logic_vector(31 downto 0);
     signal B: std_logic_vector(31 downto 0);
     signal regwrite: std_logic; 
+	 
     component registerfile
      port(
 		  clk: in std_logic;
@@ -85,12 +72,12 @@ architecture Behavioral of Datapath is
         );
     end component;
      
-     
+     -- alu signals
      signal aluoutput: std_logic_vector(31 downto 0);--alu signals
      signal aluoverflow: std_logic;
      signal alubranch: std_logic;
      signal alucarry: std_logic;
-     --signal sign_extended_imm: std_logic_vector(18 downto 0);   
+ 
      component ALU
      port(
      inputA: in std_logic_vector(31 downto 0);
@@ -105,7 +92,7 @@ architecture Behavioral of Datapath is
      );
     end component;
 	 
-    
+    --muxes for use in conjunction with control signals
     signal mux1: std_logic_vector(31 downto 0);--muxes
     signal mux2: std_logic_vector(31 downto 0);
     signal mux3: std_logic_vector(31 downto 0);
@@ -120,7 +107,6 @@ architecture Behavioral of Datapath is
     signal Loadsel: std_logic;
     signal Rsel: std_logic_vector(4 downto 0);
     signal Asel: std_logic;
-	 --signal RegWriter: std_logic;--WTF
 	 
 	 
 	 
@@ -183,7 +169,7 @@ Control_unit: control port map(
 	RegWrite=>regwrite,
 	readWrite => readWrite
 );
---sign_extended_imm<=IR4 
+
 DB2<=B4;
 AB2<=ALU4;
 AB1<=PC;
