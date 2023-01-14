@@ -1,9 +1,9 @@
-# 32-bit MIPS processor
+## 32-bit MIPS processor
 
-Semester long design project by 
-Wyatt Lien, Fahim Ghani, Jesse Coma, and Sundeep Kaler
+#Semester long design project by 
+#Wyatt Lien, Fahim Ghani, Jesse Coma, and Sundeep Kaler
 
-Abstract
+#Abstract
 An FPGA (Field Programmable Gate Array) was programmed to work as a 32-bit-
 processor loosely based on the R2000 microprocessor chip set. This processor is a CPU
 (Central Processing Unit) that interprets instructions from the MIPS (Microprocessor
@@ -14,7 +14,7 @@ Nexys 4 FPGA. The processor was tested using a MIPS assembly program that counts
 instances of a number in an array. The test program was successful, and made use of
 various branch, load, store, arithmetic, and jump type instructions.
 
-
+![Datapath](https://user-images.githubusercontent.com/31666811/212496047-78ab888c-589c-4722-9355-b6a92463c516.png)
 
 file hierarchy:  
 
