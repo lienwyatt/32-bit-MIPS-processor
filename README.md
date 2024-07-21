@@ -8,7 +8,10 @@ In this project an FPGA was programmed to work as a 32-bit CPU. The CPU design i
 
 ![Datapath](https://user-images.githubusercontent.com/31666811/212496047-78ab888c-589c-4722-9355-b6a92463c516.png)
 
-## file hierarchy:   
+## Full Report
+[Report.pdf](Report.pdf)
+
+## File Hierarchy
 
 impmlementation  
 ---datapath.vhd  
